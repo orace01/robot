@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContentPage, Todo } from "@/components/ui/content-page";
-import { shippingMethods, site } from "@/lib/site";
+import { getDeliveryMap } from "@/lib/cj/delivery";
+import { formatRange } from "@/lib/delivery";
 import { formatPrice } from "@/lib/format";
+import { products } from "@/lib/products";
+import { shippingConfig, site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Livraison et retours",
   description: "Délais et frais de livraison, droit de rétractation, garanties légales et retours.",
 };
 
-export default function ShippingReturnsPage() {
+export default async function ShippingReturnsPage() {
+  const deliveries = await getDeliveryMap();
   return (
     <ContentPage
       eyebrow="Aide"
@@ -18,20 +22,30 @@ export default function ShippingReturnsPage() {
       draft
     >
       <h2>Livraison</h2>
-      <p>Nous livrons en France métropolitaine (Corse comprise), à l&apos;adresse indiquée lors de la commande.</p>
+      <p>
+        Nous livrons en France métropolitaine (Corse comprise), à l&apos;adresse indiquée lors de la commande. La
+        livraison standard suivie est offerte. Le délai dépend du robot et de son entrepôt d&apos;expédition :
+      </p>
       <ul>
-        {shippingMethods.map((method) => (
-          <li key={method.id}>
-            <strong>{method.label}</strong> : {method.minDays} à {method.maxDays} jours ouvrés,{" "}
-            {method.price === 0 ? "offerte" : formatPrice(method.price)}.
-          </li>
-        ))}
+        {products.map((product) => {
+          const delivery = deliveries[product.slug];
+          return (
+            <li key={product.slug}>
+              <strong>
+                {site.name} {product.model}
+              </strong>{" "}
+              : expédié {delivery.shippedFrom}, livré en {formatRange(delivery.standard)}
+              {delivery.express &&
+                `, ou en ${formatRange(delivery.express)} en express (${formatPrice(shippingConfig.expressPrice)})`}
+              .
+            </li>
+          );
+        })}
       </ul>
       <p>
-        Les délais courent à partir de la confirmation de votre commande. Dès l&apos;expédition, vous recevez un
-        e-mail avec votre numéro de suivi, également consultable sur la page{" "}
-        <Link href="/suivi">Suivre ma commande</Link>. Votre colis est expédié depuis{" "}
-        <Todo>entrepôt d&apos;expédition : Europe ou Chine, selon l&apos;offre CJ retenue</Todo>.
+        Les délais courent à partir de la confirmation de votre commande et comprennent sa préparation. Dès
+        l&apos;expédition, vous recevez un e-mail avec votre numéro de suivi, également consultable sur la page{" "}
+        <Link href="/suivi">Suivre ma commande</Link>.
       </p>
 
       <h2>À la réception</h2>

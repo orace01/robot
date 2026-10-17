@@ -3,11 +3,22 @@ import Link from "next/link";
 import { AddToCartIconButton } from "@/components/cart/add-to-cart";
 import { ButtonLink } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
+import { formatRange, type ProductDelivery } from "@/lib/delivery";
 import type { Product } from "@/lib/products";
 import { site } from "@/lib/site";
 import { cn } from "@/lib/cn";
 
-export function ProductCard({ product, priority = false, className }: { product: Product; priority?: boolean; className?: string }) {
+export function ProductCard({
+  product,
+  delivery,
+  priority = false,
+  className,
+}: {
+  product: Product;
+  delivery?: ProductDelivery;
+  priority?: boolean;
+  className?: string;
+}) {
   const href = `/robots/${product.slug}`;
   return (
     <article
@@ -30,8 +41,13 @@ export function ProductCard({ product, priority = false, className }: { product:
           sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
           className="object-contain p-12 transition duration-700 ease-out group-hover:scale-[1.05]"
         />
-        <span className="absolute top-4 left-4 rounded-full bg-white px-3 py-1 text-xs font-medium shadow-sm">
-          {product.badge}
+        <span className="absolute top-4 left-4 flex flex-col items-start gap-1.5">
+          <span className="rounded-full bg-white px-3 py-1 text-xs font-medium shadow-sm">{product.badge}</span>
+          {delivery?.fromEurope && (
+            <span className="rounded-full bg-accent px-3 py-1 text-xs font-medium text-white shadow-sm">
+              Expédié {delivery.shippedFrom}
+            </span>
+          )}
         </span>
         <span className="eyebrow absolute top-5 right-5 text-muted">
           {product.model} / {product.tier}
@@ -57,7 +73,9 @@ export function ProductCard({ product, priority = false, className }: { product:
             <span className="block text-2xl font-semibold tracking-tight tabular-nums">
               {formatPrice(product.price, { compact: true })}
             </span>
-            <span className="text-xs text-muted">TTC, livraison offerte</span>
+            <span className="text-xs text-muted">
+              {delivery ? `TTC, livré en ${formatRange(delivery.standard)}` : "TTC, livraison offerte"}
+            </span>
           </p>
           <div className="flex items-center gap-2">
             <ButtonLink href={href} variant="secondary" size="sm">

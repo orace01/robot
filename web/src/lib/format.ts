@@ -28,15 +28,9 @@ export function formatShortDate(date: Date): string {
   return `${DAYS[date.getDay()]} ${date.getDate()} ${MONTHS[date.getMonth()]}`;
 }
 
-/** Ajoute des jours ouvrés (hors samedi et dimanche ; les jours fériés ne sont pas gérés). */
-export function addBusinessDays(from: Date, days: number): Date {
+export function addDays(from: Date, days: number): Date {
   const date = new Date(from);
-  let added = 0;
-  while (added < days) {
-    date.setDate(date.getDate() + 1);
-    const day = date.getDay();
-    if (day !== 0 && day !== 6) added++;
-  }
+  date.setDate(date.getDate() + days);
   return date;
 }
 

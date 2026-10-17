@@ -1,7 +1,8 @@
 import Image from "next/image";
 import type { CartItem } from "@/lib/cart";
 import { formatPrice, vatIncluded } from "@/lib/format";
-import { site, type ShippingMethod } from "@/lib/site";
+import type { ShippingOffer } from "@/lib/delivery";
+import { site } from "@/lib/site";
 
 export function OrderSummary({
   items,
@@ -10,7 +11,7 @@ export function OrderSummary({
 }: {
   items: CartItem[];
   subtotal: number;
-  shipping: ShippingMethod;
+  shipping: ShippingOffer;
 }) {
   const total = subtotal + shipping.price;
   return (

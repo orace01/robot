@@ -8,6 +8,7 @@ import { Accordion } from "@/components/ui/accordion";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Eyebrow, SectionHeading } from "@/components/ui/typography";
+import { getDeliveryMap } from "@/lib/cj/delivery";
 import { faqGroups } from "@/lib/content";
 import { formatPrice } from "@/lib/format";
 import { getProduct, products } from "@/lib/products";
@@ -45,7 +46,8 @@ export function Anatomy() {
 
 /* ------------------------------------------------ La gamme */
 
-export function Lineup() {
+export async function Lineup() {
+  const deliveries = await getDeliveryMap();
   return (
     <section className="py-24 lg:py-32">
       <Container>
@@ -70,7 +72,7 @@ export function Lineup() {
         <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {products.map((product, i) => (
             <Reveal key={product.slug} delay={i * 0.08}>
-              <ProductCard product={product} className="h-full" />
+              <ProductCard product={product} delivery={deliveries[product.slug]} className="h-full" />
             </Reveal>
           ))}
         </div>

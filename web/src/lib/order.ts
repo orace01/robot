@@ -1,7 +1,7 @@
 "use client";
 
 import type { ProductSlug } from "./products";
-import type { ShippingMethodId } from "./site";
+import type { ShippingOffer } from "./delivery";
 
 /** Commande simulée par la maquette (aucun paiement réel). */
 export interface PlacedOrder {
@@ -11,8 +11,7 @@ export interface PlacedOrder {
   firstName: string;
   address: { line1: string; line2: string; postalCode: string; city: string };
   items: { slug: ProductSlug; qty: number; total: number }[];
-  shippingMethod: ShippingMethodId;
-  shippingPrice: number;
+  shipping: ShippingOffer;
   total: number;
 }
 
@@ -38,7 +37,9 @@ export function getOrderSnapshot(): string | null {
 export function parseOrder(raw: string | null): PlacedOrder | null {
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as PlacedOrder;
+    const order = JSON.parse(raw) as PlacedOrder;
+    // Commande enregistrée dans un ancien format : on l'ignore.
+    return order.shipping?.range ? order : null;
   } catch {
     return null;
   }

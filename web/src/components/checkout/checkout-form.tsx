@@ -12,7 +12,8 @@ import { cart, useCart } from "@/lib/cart";
 import { cn } from "@/lib/cn";
 import { formatPrice } from "@/lib/format";
 import { newOrderNumber, saveOrder } from "@/lib/order";
-import { shippingMethods, site, type ShippingMethodId } from "@/lib/site";
+import { formatRange, shippingOffers, type DeliveryMap, type ShippingMethodId } from "@/lib/delivery";
+import { site } from "@/lib/site";
 
 type FieldName = "email" | "firstName" | "lastName" | "address1" | "address2" | "postalCode" | "city" | "phone";
 type Errors = Partial<Record<FieldName | "terms", string>>;
@@ -56,7 +57,7 @@ function Step({ number, title, children }: { number: number; title: string; chil
   );
 }
 
-export function CheckoutForm() {
+export function CheckoutForm({ deliveries }: { deliveries: DeliveryMap }) {
   const router = useRouter();
   const { items, subtotal } = useCart();
   const [fields, setFields] = useState(EMPTY);
@@ -78,10 +79,22 @@ export function CheckoutForm() {
     [],
   );
 
-  const shipping = shippingMethods.find((m) => m.id === shippingId) ?? shippingMethods[0];
-  const total = subtotal + shipping.price;
+  // Les modes et délais de livraison dépendent des robots du panier (données CJ).
+  const offers = shippingOffers(items.map((item) => deliveries[item.slug]));
+  const shipping = offers.find((offer) => offer.id === shippingId) ?? offers[0];
+  const total = subtotal + (shipping?.price ?? 0);
 
-  if (items.length === 0 && !paying) {
+  if (paying && !shipping) {
+    // Le panier vient d'être vidé : la redirection vers la confirmation est en cours.
+    return (
+      <div className="mx-auto flex max-w-lg flex-col items-center rounded-[28px] bg-white px-6 py-16 text-center ring-1 ring-black/5">
+        <LoaderCircle className="size-8 animate-spin text-muted" aria-hidden />
+        <p className="mt-5 text-xl font-semibold tracking-tight">Validation de votre commande…</p>
+      </div>
+    );
+  }
+
+  if (!shipping) {
     return (
       <div className="mx-auto flex max-w-lg flex-col items-center rounded-[28px] bg-white px-6 py-16 text-center ring-1 ring-black/5">
         <ShoppingBag className="size-8 text-muted" aria-hidden />
@@ -129,8 +142,7 @@ export function CheckoutForm() {
         city: fields.city.trim(),
       },
       items: items.map((item) => ({ slug: item.slug, qty: item.qty, total: item.total })),
-      shippingMethod: shipping.id,
-      shippingPrice: shipping.price,
+      shipping,
       total,
     });
     cart.clear();
@@ -191,7 +203,7 @@ export function CheckoutForm() {
           <fieldset>
             <legend className="sr-only">Mode de livraison</legend>
             <div className="grid gap-3">
-              {shippingMethods.map((method) => (
+              {offers.map((method) => (
                 <label
                   key={method.id}
                   className={cn(
@@ -210,7 +222,7 @@ export function CheckoutForm() {
                   <span className="flex-1">
                     <span className="block font-medium">{method.label}</span>
                     <span className="text-sm text-muted">
-                      {method.minDays} à {method.maxDays} jours ouvrés
+                      {formatRange(method.range)}
                     </span>
                   </span>
                   <span className="font-medium tabular-nums">

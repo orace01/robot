@@ -5,9 +5,9 @@
  * Une valeur `null` signifie « à confirmer » (fiche CJ ou échantillon) : elle s'affiche
  * comme telle sur le site. Les prix sont provisoires.
  *
- * Lors de la liaison CJ, le prix d'achat, le stock, les variantes et le délai
- * d'expédition viendront de l'API (recherche par `cj.sku`) ; les textes en français
- * et le prix de vente restent gérés ici, côté boutique.
+ * Le prix d'achat, le stock et les délais de livraison viennent de l'API CJ
+ * (voir lib/cj, via `cj.pid` et `cj.vid`) ; les textes en français et le prix
+ * de vente restent gérés ici, côté boutique.
  */
 
 export type ProductSlug = "o1" | "s2" | "q3";
@@ -71,6 +71,16 @@ export type CompareKey =
   | "rope"
   | "speed";
 
+/** Référence chez CJ Dropshipping : produit, variante commandée et pays d'expédition. */
+export interface CjReference {
+  sku: string;
+  pid: string;
+  /** Variante commandée (prise européenne quand il y a le choix). */
+  vid: string;
+  /** Pays de l'entrepôt d'où part le colis (code ISO). */
+  shipFrom: string;
+}
+
 export interface Product {
   slug: ProductSlug;
   model: string;
@@ -93,8 +103,7 @@ export interface Product {
   inBox: string[] | null;
   faq: { q: string; a: string }[];
   compare: Record<CompareKey, string | boolean | null>;
-  /** Référence CJ Dropshipping (SKU produit), utilisée pour la future liaison API. */
-  cj: { sku: string };
+  cj: CjReference;
 }
 
 function img(src: string, width: number, height: number, alt: string, cutout = false): ProductImage {
@@ -113,7 +122,7 @@ const q3: Product = {
   tagline: "Le plus complet, le plus fin, le plus sûr.",
   description:
     "Double réservoir et pulvérisation ultrasonique, trois modes de nettoyage, capteurs anti-chute, batterie de secours et télécommande : le Q3 réunit tout ce qu'on attend d'un robot laveur de vitres. Avec 6,8 cm d'épaisseur, il passe même entre une vitre et une grille de défense.",
-  price: 28900,
+  price: 26900,
   hero: q3Hero,
   gallery: [
     q3Hero,
@@ -199,7 +208,7 @@ const q3: Product = {
     { label: "Commande", value: "Bouton unique et télécommande 2,4 GHz" },
     { label: "Corde de sécurité", value: "4,5 m, résistance 150 kg" },
     { label: "Épaisseur de vitre", value: "Toutes épaisseurs" },
-    { label: "Type de prise", value: null },
+    { label: "Type de prise", value: "Européenne" },
   ],
   inBox: [
     "Robot Q3",
@@ -242,7 +251,8 @@ const q3: Product = {
     rope: "4,5 m, 150 kg",
     speed: "Environ 2 min/m²",
   },
-  cj: { sku: "CJYD2056958" },
+  // Variante « White-European Standard », stock usine en Chine.
+  cj: { sku: "CJYD2056958", pid: "2406100310411606101", vid: "2406100310411606301", shipFrom: "CN" },
 };
 
 /* ------------------------------------------------------------------ S2 */
@@ -360,7 +370,7 @@ const s2: Product = {
     { label: "Aspiration", value: "Régulée automatiquement" },
     { label: "Trajet", value: "Zigzag automatique" },
     { label: "Puissance d'aspiration", value: null },
-    { label: "Poids", value: null },
+    { label: "Poids", value: "650 g (donnée fournisseur)" },
     { label: "Batterie de secours", value: null },
     { label: "Télécommande", value: null },
     { label: "Corde de sécurité", value: null },
@@ -380,7 +390,7 @@ const s2: Product = {
   compare: {
     format: "Allongé",
     dimensions: "27,5 × 13,8 × 8 cm",
-    weight: null,
+    weight: "650 g",
     suction: "Régulée automatiquement",
     spray: "Double, automatique",
     edges: "Détection des cadres",
@@ -390,7 +400,8 @@ const s2: Product = {
     rope: null,
     speed: null,
   },
-  cj: { sku: "CJQX2533882" },
+  // Variante unique « White », stock dans l'entrepôt CJ d'Allemagne.
+  cj: { sku: "CJQX2533882", pid: "1968575516469805057", vid: "1968575516612411393", shipFrom: "DE" },
 };
 
 /* ------------------------------------------------------------------ O1 */
@@ -405,7 +416,7 @@ const o1: Product = {
   tagline: "L'essentiel, pour des vitres nettes sans se compliquer la vie.",
   description:
     "Le O1 va droit au but : il se plaque à la vitre grâce à sa puissante aspiration, la parcourt de bord en bord et l'essuie avec ses lingettes microfibre. Parfait pour les fenêtres avec cadre, les miroirs et les parois de douche.",
-  price: 14900,
+  price: 17000,
   hero: o1Hero,
   gallery: [o1Hero, img("/produits/o1/trois-quarts.webp", 466, 254, "Le O1 vu de trois quarts", true)],
   cardSpecs: ["5600 Pa", "Télécommande", "Vitres avec cadre"],
@@ -417,7 +428,7 @@ const o1: Product = {
   highlights: [
     "Aspiration puissante, adhérence stable",
     "Télécommande incluse",
-    "Voyants d'état et alarme sonore",
+    "Batterie de secours et corde de sécurité",
     "Vitres, miroirs, carrelage, parois de douche",
   ],
   features: [
@@ -469,14 +480,17 @@ const o1: Product = {
     { label: "Maintien", value: "2,52 kg à la verticale, 1,3 kg à l'horizontale" },
     { label: "Épaisseur de vitre", value: "3 mm minimum" },
     { label: "Surfaces", value: "Vitres avec cadre, miroirs, carrelage, parois de douche" },
-    { label: "Commande", value: "Télécommande" },
+    { label: "Commande", value: "Télécommande ou mode automatique" },
+    { label: "Modes", value: "3 directions de nettoyage" },
     { label: "Voyants", value: "Marche (bleu), charge (orange), anomalie (rouge)" },
-    { label: "Dimensions", value: null },
-    { label: "Poids", value: null },
-    { label: "Pulvérisation", value: null },
-    { label: "Batterie de secours", value: null },
-    { label: "Corde de sécurité", value: null },
-    { label: "Type de prise", value: null },
+    { label: "Dimensions", value: "30 × 15 × 13 cm" },
+    { label: "Poids", value: "0,95 kg" },
+    { label: "Vitesse de nettoyage", value: "Environ 0,23 m² par minute" },
+    { label: "Taille de vitre minimale", value: "35 × 35 cm" },
+    { label: "Pulvérisation", value: "Non : lingette à humidifier avant usage" },
+    { label: "Batterie de secours", value: "Oui" },
+    { label: "Corde de sécurité", value: "Oui" },
+    { label: "Type de prise", value: "Européenne" },
   ],
   inBox: null,
   faq: [
@@ -486,23 +500,32 @@ const o1: Product = {
     },
     {
       q: "Sur quelles surfaces l'utiliser ?",
-      a: "Fenêtres, baies vitrées avec cadre, miroirs, parois de douche et carrelage mural, à condition que la surface soit lisse et délimitée.",
+      a: "Fenêtres, baies vitrées avec cadre, miroirs, parois de douche et carrelage mural, à condition que la surface soit lisse, délimitée et d'au moins 35 × 35 cm.",
+    },
+    {
+      q: "Faut-il mouiller la lingette ?",
+      a: "Oui : le O1 n'a pas de réservoir. Vaporisez un peu d'eau ou de nettoyant pour vitres sur le bord de la lingette avant de le lancer.",
+    },
+    {
+      q: "Pourquoi attend-il avant de démarrer ?",
+      a: "Au démarrage, il analyse la vitre pendant une vingtaine de secondes. Il se met en route quand le voyant bleu cesse de clignoter.",
     },
   ],
   compare: {
     format: "Ovale",
-    dimensions: null,
-    weight: null,
+    dimensions: "30 × 15 × 13 cm",
+    weight: "0,95 kg",
     suction: "5600 Pa",
-    spray: null,
+    spray: "Non (lingette à humidifier)",
     edges: "Cadre nécessaire",
-    modes: null,
+    modes: "3 directions",
     remote: true,
-    backup: null,
-    rope: null,
-    speed: null,
+    backup: true,
+    rope: true,
+    speed: "Environ 4,3 min/m²",
   },
-  cj: { sku: "CJJT1080244" },
+  // Variante « EU », stock usine en Chine.
+  cj: { sku: "CJJT1080244", pid: "1382262788063367168", vid: "1382262789426515968", shipFrom: "CN" },
 };
 
 /** Ordre d'affichage : du plus accessible au plus complet. */

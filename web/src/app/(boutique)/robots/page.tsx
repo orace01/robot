@@ -9,6 +9,7 @@ import { MockupBadge } from "@/components/ui/badges";
 import { Container } from "@/components/ui/container";
 import { PageHeader } from "@/components/ui/page-header";
 import { SectionHeading } from "@/components/ui/typography";
+import { getDeliveryMap } from "@/lib/cj/delivery";
 import { products } from "@/lib/products";
 import { site } from "@/lib/site";
 
@@ -35,7 +36,8 @@ const guide = [
   },
 ];
 
-export default function RobotsPage() {
+export default async function RobotsPage() {
+  const deliveries = await getDeliveryMap();
   return (
     <>
       <PageHeader
@@ -76,7 +78,7 @@ export default function RobotsPage() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {products.map((product, i) => (
               <Reveal key={product.slug} delay={i * 0.08}>
-                <ProductCard product={product} priority={i === 0} className="h-full" />
+                <ProductCard product={product} delivery={deliveries[product.slug]} priority={i === 0} className="h-full" />
               </Reveal>
             ))}
           </div>

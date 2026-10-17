@@ -23,22 +23,20 @@ export const site = {
   mockup: true,
 } as const;
 
-export type ShippingMethodId = "standard" | "express";
-
-export interface ShippingMethod {
-  id: ShippingMethodId;
-  label: string;
-  /** Prix en centimes TTC. */
-  price: number;
-  minDays: number;
-  maxDays: number;
-}
-
-// Délais et tarifs provisoires : à caler sur les options d'expédition CJ vers la France.
-export const shippingMethods: ShippingMethod[] = [
-  { id: "standard", label: "Livraison standard suivie", price: 0, minDays: 7, maxDays: 12 },
-  { id: "express", label: "Livraison express suivie", price: 1490, minDays: 4, maxDays: 7 },
-];
+/**
+ * Livraison. Les délais de transport viennent de CJ Dropshipping (voir lib/cj) ;
+ * on y ajoute le temps de préparation de la commande.
+ */
+export const shippingConfig = {
+  standardLabel: "Livraison standard suivie",
+  expressLabel: "Livraison express suivie",
+  /** Supplément express payé par le client, en centimes TTC (provisoire : CJ facture environ 9 à 11 $ de plus). */
+  expressPrice: 990,
+  /** Préparation de la commande avant expédition, en jours (provisoire). */
+  processingDays: { min: 1, max: 3 },
+  /** Délai affiché si CJ ne répond pas. */
+  fallback: { minDays: 8, maxDays: 15 },
+} as const;
 
 export const nav = [
   { href: "/robots", label: "Nos robots" },

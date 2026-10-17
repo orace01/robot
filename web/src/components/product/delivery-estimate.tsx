@@ -2,8 +2,8 @@
 
 import { useSyncExternalStore } from "react";
 import { Truck } from "lucide-react";
-import { addBusinessDays, formatShortDate } from "@/lib/format";
-import { shippingMethods } from "@/lib/site";
+import { formatRange, type ProductDelivery } from "@/lib/delivery";
+import { addDays, formatShortDate } from "@/lib/format";
 
 const noop = () => () => {};
 
@@ -11,13 +11,13 @@ const noop = () => () => {};
  * Date de livraison estimée. Elle dépend du jour de la visite : elle est donc
  * calculée dans le navigateur uniquement (le serveur affiche le délai brut).
  */
-export function DeliveryEstimate() {
-  const standard = shippingMethods[0];
-  const range = useSyncExternalStore(
+export function DeliveryEstimate({ delivery }: { delivery: ProductDelivery }) {
+  const { minDays, maxDays } = delivery.standard;
+  const dates = useSyncExternalStore(
     noop,
     () => {
       const today = new Date();
-      return `${formatShortDate(addBusinessDays(today, standard.minDays))} et le ${formatShortDate(addBusinessDays(today, standard.maxDays))}`;
+      return `${formatShortDate(addDays(today, minDays))} et le ${formatShortDate(addDays(today, maxDays))}`;
     },
     () => null,
   );
@@ -27,16 +27,16 @@ export function DeliveryEstimate() {
       <Truck className="mt-0.5 size-5 shrink-0 text-ink-soft" aria-hidden />
       <span>
         <span className="font-medium">Livraison offerte</span>
-        {range ? (
+        {dates ? (
           <>
-            , estimée entre le <span className="font-medium">{range}</span>
+            , estimée entre le <span className="font-medium">{dates}</span>
           </>
         ) : (
-          <>
-            , sous {standard.minDays} à {standard.maxDays} jours ouvrés.
-          </>
+          <>, sous {formatRange(delivery.standard)}</>
         )}
-        <span className="mt-0.5 block text-muted">Colis suivi, numéro envoyé par e-mail dès l&apos;expédition.</span>
+        <span className="mt-0.5 block text-muted">
+          Expédié {delivery.shippedFrom}, colis suivi. Numéro de suivi envoyé par e-mail dès l&apos;expédition.
+        </span>
       </span>
     </p>
   );

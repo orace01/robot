@@ -13,6 +13,7 @@ import { Accordion } from "@/components/ui/accordion";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Container } from "@/components/ui/container";
 import { Eyebrow, SectionHeading } from "@/components/ui/typography";
+import { getDeliveryMap } from "@/lib/cj/delivery";
 import { getProduct, products } from "@/lib/products";
 import { site } from "@/lib/site";
 
@@ -64,6 +65,7 @@ async function ProductContent({ params }: { params: PageProps<"/robots/[slug]">[
   const product = getProduct(slug);
   if (!product) notFound();
 
+  const deliveries = await getDeliveryMap();
   const others = products.filter((p) => p.slug !== product.slug);
   const name = `${site.name} ${product.model}`;
 
@@ -79,7 +81,7 @@ async function ProductContent({ params }: { params: PageProps<"/robots/[slug]">[
       "@type": "Offer",
       priceCurrency: "EUR",
       price: (product.price / 100).toFixed(2),
-      availability: "https://schema.org/InStock",
+      availability: deliveries[product.slug].inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
     },
   };
 
@@ -100,7 +102,7 @@ async function ProductContent({ params }: { params: PageProps<"/robots/[slug]">[
           </div>
           <div className="min-w-0 lg:col-span-5">
             <div className="lg:sticky lg:top-24">
-              <BuyPanel product={product} />
+              <BuyPanel product={product} delivery={deliveries[product.slug]} />
             </div>
           </div>
         </Container>
@@ -175,7 +177,7 @@ async function ProductContent({ params }: { params: PageProps<"/robots/[slug]">[
           </div>
           <div className="mt-10 grid gap-4 md:grid-cols-2">
             {others.map((other) => (
-              <ProductCard key={other.slug} product={other} />
+              <ProductCard key={other.slug} product={other} delivery={deliveries[other.slug]} />
             ))}
           </div>
         </Container>

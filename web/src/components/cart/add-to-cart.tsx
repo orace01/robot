@@ -32,7 +32,7 @@ export function AddToCartIconButton({ slug, model, className }: { slug: ProductS
 }
 
 /** Quantité + « Ajouter au panier » de la fiche produit. */
-export function AddToCart({ product }: { product: Product }) {
+export function AddToCart({ product, available = true }: { product: Product; available?: boolean }) {
   const { openCart } = useCartDrawer();
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
@@ -43,6 +43,7 @@ export function AddToCart({ product }: { product: Product }) {
       <Button
         size="lg"
         className="flex-1"
+        disabled={!available}
         onClick={() => {
           cart.add(product.slug, qty);
           setAdded(true);
@@ -50,7 +51,9 @@ export function AddToCart({ product }: { product: Product }) {
           openCart();
         }}
       >
-        {added ? (
+        {!available ? (
+          "Indisponible pour le moment"
+        ) : added ? (
           <>
             <Check className="size-4" aria-hidden /> Ajouté
           </>

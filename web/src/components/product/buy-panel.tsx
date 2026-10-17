@@ -2,20 +2,21 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Check, Lock, RotateCcw, ShieldCheck } from "lucide-react";
+import { Check, Lock, RotateCcw, ShieldCheck, Zap } from "lucide-react";
 import { useCartDrawer } from "@/components/providers";
 import { AddToCart } from "@/components/cart/add-to-cart";
 import { DeliveryEstimate } from "@/components/product/delivery-estimate";
 import { MockupBadge } from "@/components/ui/badges";
 import { Button } from "@/components/ui/button";
 import { cart } from "@/lib/cart";
+import type { ProductDelivery } from "@/lib/delivery";
 import { formatPrice } from "@/lib/format";
 import type { Product } from "@/lib/products";
 import { site } from "@/lib/site";
 import { cn } from "@/lib/cn";
 
 /** Bloc d'achat de la fiche produit, avec une barre d'achat collante sur mobile. */
-export function BuyPanel({ product }: { product: Product }) {
+export function BuyPanel({ product, delivery }: { product: Product; delivery: ProductDelivery }) {
   const { openCart } = useCartDrawer();
   const anchor = useRef<HTMLDivElement>(null);
   const [showBar, setShowBar] = useState(false);
@@ -63,15 +64,28 @@ export function BuyPanel({ product }: { product: Product }) {
         ))}
       </ul>
 
-      <p className="eyebrow flex items-center gap-2 text-ink-soft">
-        <span className="size-2 rounded-full bg-ok" /> En stock
-      </p>
-
-      <div ref={anchor}>
-        <AddToCart product={product} />
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        {delivery.inStock ? (
+          <p className="eyebrow flex items-center gap-2 text-ink-soft">
+            <span className="size-2 rounded-full bg-ok" /> En stock
+          </p>
+        ) : (
+          <p className="eyebrow flex items-center gap-2 text-ink-soft">
+            <span className="size-2 rounded-full bg-amber-500" /> Rupture de stock, bientôt de retour
+          </p>
+        )}
+        {delivery.fromEurope && (
+          <p className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent-strong">
+            <Zap className="size-3.5" aria-hidden /> Expédié {delivery.shippedFrom} : livraison rapide
+          </p>
+        )}
       </div>
 
-      <DeliveryEstimate />
+      <div ref={anchor}>
+        <AddToCart product={product} available={delivery.inStock} />
+      </div>
+
+      <DeliveryEstimate delivery={delivery} />
 
       <ul className="grid grid-cols-3 gap-2 text-center text-xs text-ink-soft">
         <li className="rounded-[14px] bg-white p-3 ring-1 ring-black/5">
@@ -108,6 +122,7 @@ export function BuyPanel({ product }: { product: Product }) {
         <Button
           size="md"
           tabIndex={showBar ? 0 : -1}
+          disabled={!delivery.inStock}
           onClick={() => {
             cart.add(product.slug);
             openCart();

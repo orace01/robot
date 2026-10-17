@@ -5,10 +5,10 @@ import Link from "next/link";
 import { Check, CircleCheck, Mail, PackageCheck, Truck } from "lucide-react";
 import { MockupBadge } from "@/components/ui/badges";
 import { ButtonLink } from "@/components/ui/button";
-import { addBusinessDays, formatPrice, formatShortDate } from "@/lib/format";
+import { addDays, formatPrice, formatShortDate } from "@/lib/format";
 import { getOrderSnapshot, parseOrder } from "@/lib/order";
 import { getProduct } from "@/lib/products";
-import { shippingMethods, site } from "@/lib/site";
+import { site } from "@/lib/site";
 
 const noop = () => () => {};
 
@@ -36,15 +36,14 @@ export function ConfirmationView() {
   }
 
   const placedAt = new Date(order.placedAt);
-  const method = shippingMethods.find((m) => m.id === order.shippingMethod) ?? shippingMethods[0];
   const steps = [
     { icon: CircleCheck, title: "Commande confirmée", text: `Le ${formatShortDate(placedAt)}`, done: true },
-    { icon: PackageCheck, title: "Préparation", text: "Sous 1 à 3 jours ouvrés", done: false },
+    { icon: PackageCheck, title: "Préparation", text: "Votre colis est préparé puis remis au transporteur", done: false },
     { icon: Mail, title: "Expédition", text: "Numéro de suivi envoyé par e-mail", done: false },
     {
       icon: Truck,
       title: "Livraison",
-      text: `Entre le ${formatShortDate(addBusinessDays(placedAt, method.minDays))} et le ${formatShortDate(addBusinessDays(placedAt, method.maxDays))}`,
+      text: `Entre le ${formatShortDate(addDays(placedAt, order.shipping.range.minDays))} et le ${formatShortDate(addDays(placedAt, order.shipping.range.maxDays))}`,
       done: false,
     },
   ];
@@ -110,8 +109,8 @@ export function ConfirmationView() {
               </li>
             ))}
             <li className="flex justify-between gap-4 text-muted">
-              <span>{method.label}</span>
-              <span>{order.shippingPrice === 0 ? "Offerte" : formatPrice(order.shippingPrice)}</span>
+              <span>{order.shipping.label}</span>
+              <span>{order.shipping.price === 0 ? "Offerte" : formatPrice(order.shipping.price)}</span>
             </li>
             <li className="flex justify-between gap-4 border-t border-line pt-3 text-base font-semibold">
               <span>Total TTC</span>

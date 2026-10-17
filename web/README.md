@@ -14,6 +14,28 @@ Puis ouvrir http://localhost:3000.
 
 Next.js 16 · React 19 · Tailwind CSS 4 · Motion (animations) · Lucide (icônes).
 
+## Connexion à CJ Dropshipping
+
+Le site lit chez CJ, côté serveur uniquement :
+- le prix d'achat de chaque robot ;
+- son stock ;
+- les transports possibles vers la France.
+
+Il en déduit les délais affichés aux clients (préparation + transport) et l'option express. Les données sont gardées en cache une heure. Si CJ ne répond pas, le site affiche des délais par défaut et réessaie quelques minutes plus tard.
+
+Fichier `web/.env.local`, jamais versionné :
+
+```
+CJ_API_KEY=...        # clé API de l'espace CJ
+CJ_ACCESS_TOKEN=...   # jeton d'accès (180 jours), évite de le redemander à chaque démarrage
+```
+
+CJ limite fortement la demande de jeton, et le jeton dure 180 jours. En production, renseigner `CJ_ACCESS_TOKEN` et le renouveler avant son expiration.
+
+Page interne **http://localhost:3000/admin/fournisseur** (en développement seulement) : prix d'achat, stock, transports et marge réelle de chaque robot au taux BCE du jour.
+
+Les références CJ (produit, variante à prise européenne, entrepôt) sont dans `src/lib/products.ts`, champ `cj`.
+
 ## Où modifier quoi
 
 | Pour changer…                                 | Fichier                  |

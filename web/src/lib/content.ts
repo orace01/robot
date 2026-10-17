@@ -72,11 +72,11 @@ export const faqGroups: FaqGroup[] = [
     items: [
       {
         q: "Combien coûte la livraison ?",
-        a: "La livraison standard suivie est offerte en France métropolitaine. Une option express est proposée au moment de la commande.",
+        a: "La livraison standard suivie est offerte en France métropolitaine. Pour certains modèles, une option express payante est proposée au moment de la commande.",
       },
       {
         q: "Quels sont les délais ?",
-        a: "Comptez 7 à 12 jours ouvrés en livraison standard et 4 à 7 jours ouvrés en express. La date estimée est affichée sur chaque fiche produit.",
+        a: "Cela dépend du robot et de son entrepôt d'expédition : environ une semaine depuis l'Europe, deux semaines depuis l'Asie. La date estimée s'affiche sur chaque fiche produit, et une option express est proposée à la commande quand elle existe.",
       },
       {
         q: "Comment suivre ma commande ?",
