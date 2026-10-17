@@ -1,0 +1,258 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", monospace;
+
+  /* Base claire et monochrome, un seul accent bleu (cf. inspirations). */
+  --color-canvas: #f2f3f5;
+  --color-surface: #ffffff;
+  --color-mist: #e7e9ed;
+  --color-line: #d8dbe1;
+  --color-ink: #0d0f12;
+  --color-ink-soft: #3a3f48;
+  --color-muted: #6b727d;
+  --color-faint: #a1a7b0;
+  --color-accent: #2d5bff;
+  --color-accent-strong: #1f45e0;
+  --color-accent-soft: #e4eaff;
+  /* Sections « bleu électrique » inspirées de la vidéo. */
+  --color-deep: #081845;
+  --color-deep-2: #1236c4;
+  --color-ok: #12a26a;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-mist: mist 3.4s ease-in-out infinite;
+  --animate-blink: blink 1.1s steps(1) infinite;
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-fade-in: fade-in 0.45s ease-out;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes mist {
+    0%,
+    100% {
+      opacity: 0.5;
+      transform: scale(0.94);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.06);
+    }
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
+
+/* Titres « Smart Spray » : la police Archivo est variable en largeur. */
+@utility condensed {
+  font-stretch: 68%;
+}
+
+@utility semi-condensed {
+  font-stretch: 85%;
+}
+
+/*
+ * Dégradés écrits en CSS classique : ceux de Tailwind 4 (« in oklab ») sont ignorés
+ * par les navigateurs plus anciens (Firefox < 127, Safari < 16.2), qui n'affichent alors aucun fond.
+ */
+@utility bg-deep-gradient {
+  background-color: var(--color-deep);
+  background-image: linear-gradient(to bottom right, var(--color-deep), #0b2272 50%, var(--color-deep-2));
+}
+
+/* Disque bleu derrière les produits. */
+@utility bg-disc {
+  background-color: var(--color-deep-2);
+  background-image: linear-gradient(to bottom, var(--color-deep-2), var(--color-deep));
+}
+
+/* Fond gris des visuels produit (cartes, galerie, panier). */
+@utility bg-stage {
+  background-color: #eceef1;
+  background-image: linear-gradient(to bottom, #e3e6ea, #f5f6f8);
+}
+
+/* Grand panneau de l'accueil. */
+@utility bg-panel {
+  background-color: #e9ebee;
+  background-image: linear-gradient(to bottom, #dde1e6, #e9ebee 50%, #f6f7f8);
+}
+
+/* En-tête des pages intérieures. */
+@utility bg-panel-soft {
+  background-color: #e6e9ec;
+  background-image: linear-gradient(to bottom, #dde1e6, #eef0f2);
+}
+
+/* Petits libellés techniques en majuscules (« INTRODUCING », « STATUS: ACTIVE »). */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@utility dot-grid {
+  background-image: radial-gradient(currentColor 1px, transparent 1.2px);
+  background-size: 16px 16px;
+}
+
+@utility blueprint-grid {
+  background-image:
+    linear-gradient(to right, currentColor 1px, transparent 1px),
+    linear-gradient(to bottom, currentColor 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Croix « + » répétées, comme sur la page Sevensense. */
+@utility plus-grid-light {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M28 23v10M23 28h10' stroke='%23fff' stroke-opacity='.28' stroke-width='1.2'/%3E%3C/svg%3E");
+  background-size: 56px 56px;
+}
+
+@utility plus-grid-dark {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M28 23v10M23 28h10' stroke='%230d0f12' stroke-opacity='.14' stroke-width='1.2'/%3E%3C/svg%3E");
+  background-size: 56px 56px;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  html[data-scroll-behavior="smooth"] {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-sans);
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  summary {
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  [id] {
+    scroll-margin-top: 96px;
+  }
+}
+
+@layer components {
+  /* Pages de contenu (FAQ longue, livraison, pages légales). */
+  .prose-page {
+    color: var(--color-ink-soft);
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .prose-page h2 {
+    margin-top: 2.75rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-ink);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  .prose-page h3 {
+    margin-top: 1.75rem;
+    color: var(--color-ink);
+    font-size: 1.125rem;
+    font-weight: 650;
+  }
+
+  .prose-page p,
+  .prose-page ul,
+  .prose-page ol {
+    margin-top: 0.75rem;
+  }
+
+  .prose-page ul {
+    list-style: disc;
+    padding-left: 1.25rem;
+  }
+
+  .prose-page ol {
+    list-style: decimal;
+    padding-left: 1.25rem;
+  }
+
+  .prose-page li {
+    margin-top: 0.35rem;
+  }
+
+  .prose-page a {
+    color: var(--color-accent-strong);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .prose-page strong {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+
+  /* Champ à compléter dans les modèles de pages légales. */
+  .a-completer {
+    border-radius: 4px;
+    background: #fff1cc;
+    padding: 0 0.3em;
+    color: #7a4b00;
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-scroll-behavior="smooth"] {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
