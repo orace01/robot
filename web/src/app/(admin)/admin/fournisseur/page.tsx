@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { ExternalLink, TriangleAlert, Warehouse } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/typography";
+import { requireAdmin } from "@/lib/auth/admin";
 import { getUsdPerEur } from "@/lib/cj/exchange";
 import { getSupplierCatalog, shippedFromPhrases, type SupplierInfo } from "@/lib/cj/supplier";
 import { cn } from "@/lib/cn";
@@ -137,9 +138,17 @@ function ProductEconomics({ product, info, usdPerEur }: { product: Product; info
   );
 }
 
-export default async function SupplierPage() {
-  // Prix d'achat confidentiels : réservé au développement tant qu'il n'y a pas d'accès administrateur.
-  if (process.env.NODE_ENV === "production") notFound();
+export default function SupplierPage() {
+  return (
+    <Suspense fallback={<Container className="pt-10"><div className="h-96 animate-pulse rounded-[24px] bg-white/60" aria-busy="true" /></Container>}>
+      <SupplierContent />
+    </Suspense>
+  );
+}
+
+async function SupplierContent() {
+  // Prix d'achat confidentiels : réservé à l'administration.
+  await requireAdmin();
 
   const [exchange, catalog] = await Promise.all([getUsdPerEur(), getSupplierCatalog()]);
   const infos = products.map((product) => catalog[product.cj.sku]);

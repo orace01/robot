@@ -32,9 +32,32 @@ CJ_ACCESS_TOKEN=...   # jeton d'accès (180 jours), évite de le redemander à c
 
 CJ limite fortement la demande de jeton, et le jeton dure 180 jours. En production, renseigner `CJ_ACCESS_TOKEN` et le renouveler avant son expiration.
 
-Page interne **http://localhost:3000/admin/fournisseur** (en développement seulement) : prix d'achat, stock, transports et marge réelle de chaque robot au taux BCE du jour.
+Page **http://localhost:3000/admin/fournisseur** (administration, protégée par mot de passe) : prix d'achat, stock, transports et marge réelle de chaque robot au taux BCE du jour.
 
 Les références CJ (produit, variante à prise européenne, entrepôt) sont dans `src/lib/products.ts`, champ `cj`.
+
+## Commandes et administration
+
+Les commandes sont enregistrées dans une base SQLite locale (`web/data/boutique.db`, créée automatiquement au premier lancement, jamais versionnée). Le serveur revérifie tout ce qui vient du navigateur : prix, stock, mode de livraison et champs du formulaire. Tant que l'agrégateur de paiement n'est pas branché (`paymentMode: "simulation"` dans `src/lib/site.ts`), la commande est marquée payée d'office.
+
+Administration : **http://localhost:3000/admin**. Le mot de passe se trouve dans `web/.env.local`, variable `ADMIN_PASSWORD`, et tu peux le changer quand tu veux. Elle comprend :
+- la liste des commandes, avec filtres par statut et recherche ;
+- la fiche de chaque commande : client, articles, marge estimée, changement de statut, numéro de suivi et notes internes ;
+- la page fournisseur CJ.
+
+Statuts possibles, dans l'ordre :
+- En attente de paiement
+- Payée
+- En préparation
+- Expédiée
+- Livrée
+
+Une commande peut aussi être annulée ou remboursée. Le client suit sa commande sur `/suivi`, avec son numéro de commande et son e-mail.
+
+Base de données :
+- `npm run db:studio` : explorer la base dans le navigateur ;
+- `npm run db:generate` : créer une migration après une modification de `src/db/schema.ts`. Les migrations s'appliquent toutes seules au démarrage.
+- En production : base libSQL hébergée (Turso), via `DATABASE_URL` et `DATABASE_AUTH_TOKEN`.
 
 ## Où modifier quoi
 

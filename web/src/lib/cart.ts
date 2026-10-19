@@ -1,11 +1,12 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { MAX_QUANTITY } from "./orders/checkout";
 import { getProduct, type Product, type ProductSlug } from "./products";
 
 /**
- * Panier de la maquette, conservé dans le navigateur (localStorage).
- * Il sera remplacé par un panier côté serveur lors de la création du back-end.
+ * Panier conservé dans le navigateur (localStorage). Les prix affichés viennent du
+ * catalogue ; ils sont recalculés par le serveur au moment de la commande.
  */
 
 export interface CartLine {
@@ -19,7 +20,7 @@ export interface CartItem extends CartLine {
 }
 
 const KEY = "panier:v1";
-const MAX_QTY = 5;
+const MAX_QTY = MAX_QUANTITY;
 const EMPTY: CartLine[] = [];
 
 let lines: CartLine[] = EMPTY;

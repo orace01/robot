@@ -11,39 +11,11 @@ import { Button, ButtonLink } from "@/components/ui/button";
 import { cart, useCart } from "@/lib/cart";
 import { cn } from "@/lib/cn";
 import { formatPrice } from "@/lib/format";
-import { newOrderNumber, saveOrder } from "@/lib/order";
+import { saveOrder } from "@/lib/order";
 import { formatRange, shippingOffers, type DeliveryMap, type ShippingMethodId } from "@/lib/delivery";
+import { EMPTY_CUSTOMER, validateCustomer, type CheckoutErrors, type CustomerField } from "@/lib/orders/checkout";
 import { site } from "@/lib/site";
-
-type FieldName = "email" | "firstName" | "lastName" | "address1" | "address2" | "postalCode" | "city" | "phone";
-type Errors = Partial<Record<FieldName | "terms", string>>;
-
-const EMPTY: Record<FieldName, string> = {
-  email: "",
-  firstName: "",
-  lastName: "",
-  address1: "",
-  address2: "",
-  postalCode: "",
-  city: "",
-  phone: "",
-};
-
-function validate(fields: Record<FieldName, string>, terms: boolean): Errors {
-  const errors: Errors = {};
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email.trim())) errors.email = "Saisissez une adresse e-mail valide.";
-  if (!fields.firstName.trim()) errors.firstName = "Indiquez votre prénom.";
-  if (!fields.lastName.trim()) errors.lastName = "Indiquez votre nom.";
-  if (!fields.address1.trim()) errors.address1 = "Indiquez votre adresse.";
-  const postalCode = fields.postalCode.trim();
-  if (!/^\d{5}$/.test(postalCode)) errors.postalCode = "Le code postal comporte 5 chiffres.";
-  else if (/^9[78]/.test(postalCode)) errors.postalCode = "Nous livrons uniquement en France métropolitaine.";
-  if (!fields.city.trim()) errors.city = "Indiquez votre ville.";
-  if (!/^(?:\+33\s?|0)[1-9](?:[\s.-]?\d{2}){4}$/.test(fields.phone.trim()))
-    errors.phone = "Saisissez un numéro français, par exemple 06 12 34 56 78.";
-  if (!terms) errors.terms = "Vous devez accepter les conditions générales de vente.";
-  return errors;
-}
+import { placeOrder } from "@/app/(tunnel)/commande/actions";
 
 function Step({ number, title, children }: { number: number; title: string; children: React.ReactNode }) {
   return (
@@ -60,8 +32,9 @@ function Step({ number, title, children }: { number: number; title: string; chil
 export function CheckoutForm({ deliveries }: { deliveries: DeliveryMap }) {
   const router = useRouter();
   const { items, subtotal } = useCart();
-  const [fields, setFields] = useState(EMPTY);
-  const [errors, setErrors] = useState<Errors>({});
+  const [fields, setFields] = useState(EMPTY_CUSTOMER);
+  const [errors, setErrors] = useState<CheckoutErrors>({});
+  const [formError, setFormError] = useState<string>();
   const [shippingId, setShippingId] = useState<ShippingMethodId>("standard");
   const [terms, setTerms] = useState(false);
   const [newsletter, setNewsletter] = useState(false);
@@ -71,8 +44,9 @@ export function CheckoutForm({ deliveries }: { deliveries: DeliveryMap }) {
   // quand elle disparaît, pour qu'un retour arrière n'affiche pas l'ancien formulaire.
   useLayoutEffect(
     () => () => {
-      setFields(EMPTY);
+      setFields(EMPTY_CUSTOMER);
       setErrors({});
+      setFormError(undefined);
       setTerms(false);
       setPaying(false);
     },
@@ -107,7 +81,7 @@ export function CheckoutForm({ deliveries }: { deliveries: DeliveryMap }) {
     );
   }
 
-  const bind = (name: FieldName) => ({
+  const bind = (name: CustomerField) => ({
     name,
     value: fields[name],
     error: errors[name],
@@ -119,32 +93,32 @@ export function CheckoutForm({ deliveries }: { deliveries: DeliveryMap }) {
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const found = validate(fields, terms);
+    if (!shipping) return;
+    const found = validateCustomer(fields, terms);
     setErrors(found);
+    setFormError(undefined);
     const first = Object.keys(found)[0];
     if (first) {
       document.getElementById(first === "terms" ? "champ-cgv" : `champ-${first}`)?.focus();
       return;
     }
 
-    // Maquette : le paiement est simulé. L'agrégateur de paiement prendra le relais ici.
     setPaying(true);
-    await new Promise((resolve) => window.setTimeout(resolve, 1200));
-    saveOrder({
-      number: newOrderNumber(),
-      placedAt: new Date().toISOString(),
-      email: fields.email.trim(),
-      firstName: fields.firstName.trim(),
-      address: {
-        line1: fields.address1.trim(),
-        line2: fields.address2.trim(),
-        postalCode: fields.postalCode.trim(),
-        city: fields.city.trim(),
-      },
-      items: items.map((item) => ({ slug: item.slug, qty: item.qty, total: item.total })),
-      shipping,
-      total,
+    // Le serveur revérifie tout (prix, stock, livraison) et enregistre la commande.
+    const result = await placeOrder({
+      customer: fields,
+      items: items.map((item) => ({ slug: item.slug, qty: item.qty })),
+      shippingMethod: shipping.id,
+      terms,
+      newsletter,
     });
+    if (!result.ok) {
+      setPaying(false);
+      setErrors(result.errors ?? {});
+      setFormError(result.message);
+      return;
+    }
+    saveOrder(result.order);
     cart.clear();
     router.push("/commande/confirmation");
   }
@@ -279,6 +253,11 @@ export function CheckoutForm({ deliveries }: { deliveries: DeliveryMap }) {
               </p>
             )}
 
+            {formError && (
+              <p role="alert" className="mt-4 rounded-[12px] bg-red-50 p-3 text-sm text-red-800">
+                {formError}
+              </p>
+            )}
             <Button type="submit" size="lg" className="mt-5 w-full" disabled={paying}>
               {paying ? (
                 <>

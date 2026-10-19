@@ -44,8 +44,3 @@ export function parseOrder(raw: string | null): PlacedOrder | null {
     return null;
   }
 }
-
-export function newOrderNumber(): string {
-  const digits = Math.floor(100000 + Math.random() * 900000);
-  return `CL-${digits}`;
-}
