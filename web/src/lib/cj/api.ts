@@ -13,7 +13,17 @@ const MIN_INTERVAL_MS = 1100;
 
 export class CjError extends Error {
   name = "CjError";
+  /** Code d'erreur CJ (1603003 : commande déjà créée, 1600300 : commande introuvable…). */
+  code?: number;
+
+  constructor(message: string, code?: number) {
+    super(message);
+    this.code = code;
+  }
 }
+
+/** Code renvoyé quand CJ limite les appels. */
+const RATE_LIMITED = 429;
 
 interface CjEnvelope<T> {
   code: number;
@@ -34,9 +44,13 @@ async function send<T>(path: string, init: { method: string; token?: string; bod
     },
     body: init.body === undefined ? undefined : JSON.stringify(init.body),
   });
-  if (response.status === 429) throw new CjError(`CJ limite les appels (HTTP 429) sur ${path} : réessayer plus tard.`);
-  if (!response.ok) throw new CjError(`HTTP ${response.status} sur ${path}`);
-  return response.json();
+  if (response.status === RATE_LIMITED) {
+    throw new CjError(`CJ limite les appels (HTTP 429) sur ${path} : réessayer plus tard.`, RATE_LIMITED);
+  }
+  // CJ répond parfois en HTTP 400 avec un code d'erreur exploitable dans le corps.
+  const json: CjEnvelope<T> | null = await response.json().catch(() => null);
+  if (typeof json?.code !== "number") throw new CjError(`HTTP ${response.status} sur ${path}`);
+  return json;
 }
 
 /**
@@ -73,8 +87,15 @@ export async function openCjSession(): Promise<CjRequest> {
     lastCallAt = Date.now();
 
     const url = method === "GET" ? `${path}?${new URLSearchParams(params as Record<string, string>).toString()}` : path;
-    const json = await send<T>(url, { method, token, body: method === "POST" ? params : undefined });
-    if (json.code !== 200) throw new CjError(`CJ ${path} : ${json.code} ${json.message}`);
+    const call = () => send<T>(url, { method, token, body: method === "POST" ? params : undefined });
+    // Un autre traitement a pu appeler CJ au même moment : on réessaie une fois.
+    const json = await call().catch(async (error) => {
+      if (!(error instanceof CjError && error.code === RATE_LIMITED)) throw error;
+      await pause(2 * MIN_INTERVAL_MS);
+      lastCallAt = Date.now();
+      return call();
+    });
+    if (json.code !== 200) throw new CjError(`CJ ${path} : ${json.code} ${json.message}`, json.code);
     return json.data;
   };
 }

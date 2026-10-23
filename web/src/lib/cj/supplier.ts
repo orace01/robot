@@ -12,6 +12,8 @@ export interface CjShippingOption {
   priceUsd: number;
   /** Frais de port, taxes et frais de dédouanement inclus, en dollars. */
   totalUsd: number;
+  /** Transporteur accepté par CJ pour les commandes passées par l'API. */
+  orderable: boolean;
 }
 
 export interface SupplierInfo {
@@ -67,6 +69,33 @@ export const shippedFromPhrases: Record<string, string> = {
 
 export const europeanWarehouses = new Set(["DE", "FR", "ES", "IT", "PL", "CZ", "NL", "BE"]);
 
+/**
+ * Transporteurs que CJ accepte pour une commande passée par l'API : ses propres lignes
+ * (CJPacket) et DHL depuis ses entrepôts européens. Testé en mode sandbox le 2026-10-19 :
+ * « YunExpress Sensitive » est refusé (logisticsMiss), CJPacket et « DHL DE to FR » acceptés.
+ */
+const ORDERABLE_LOGISTICS = /^(CJPacket|DHL)\b/i;
+
+/** Options utilisables pour commander, de la moins chère à la plus chère. */
+export function orderableOptions(info: SupplierInfo | null): CjShippingOption[] {
+  return info ? info.options.filter((option) => option.orderable) : [];
+}
+
+/** Option la plus rapide (puis la moins chère), utilisée pour l'express. */
+export function fastestOption(options: CjShippingOption[]): CjShippingOption | undefined {
+  return [...options].sort((a, b) => a.maxDays - b.maxDays || a.totalUsd - b.totalUsd)[0];
+}
+
+/**
+ * TVA d'import facturée par CJ quand il dédouane avec son propre numéro IOSS (envois hors
+ * Union européenne) : environ 20 % de la valeur du produit (13,52 $ pour un Q3 à 67,59 $).
+ */
+export const IMPORT_VAT_RATE = 0.2;
+
+export function importVatUsd(info: SupplierInfo): number {
+  return europeanWarehouses.has(info.shipFrom) ? 0 : info.costUsd * IMPORT_VAT_RATE;
+}
+
 /** « 7-12 » → { min: 7, max: 12 } ; « 5 » → { min: 5, max: 5 }. */
 function parseAging(aging: string): { min: number; max: number } | null {
   const numbers = String(aging).match(/\d+/g)?.map(Number);
@@ -100,6 +129,7 @@ async function fetchSupplierInfo(request: CjRequest, ref: CjReference): Promise<
           maxDays: days.max,
           priceUsd: option.logisticPrice,
           totalUsd: option.totalPostageFee ?? option.logisticPrice,
+          orderable: ORDERABLE_LOGISTICS.test(option.logisticName),
         },
       ];
     })

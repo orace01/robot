@@ -1,5 +1,6 @@
 "use server";
 
+import { after } from "next/server";
 import { getDeliveryMap } from "@/lib/cj/delivery";
 import { shippingOffers } from "@/lib/delivery";
 import { vatIncluded } from "@/lib/format";
@@ -12,6 +13,7 @@ import {
   type CheckoutRequest,
   type CustomerFields,
 } from "@/lib/orders/checkout";
+import { forwardOrderToSupplier } from "@/lib/orders/fulfillment";
 import { createOrder, markOrderPaid } from "@/lib/orders/service";
 import { getProduct, type Product } from "@/lib/products";
 import { site } from "@/lib/site";
@@ -84,6 +86,8 @@ export async function placeOrder(request: CheckoutRequest): Promise<PlaceOrderRe
     // En attendant l'agrégateur de paiement, la commande est marquée payée d'office.
     if (site.paymentMode === "simulation") {
       await markOrderPaid(order.id, { provider: "simulation", reference: order.number });
+      // Transmission à CJ une fois la réponse envoyée : le client n'attend pas.
+      after(() => forwardOrderToSupplier(order.id));
     }
 
     return {

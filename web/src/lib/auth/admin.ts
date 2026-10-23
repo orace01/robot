@@ -3,6 +3,7 @@ import "server-only";
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 
 /**
  * Accès à l'administration : un mot de passe (ADMIN_PASSWORD) et un cookie de session
@@ -59,6 +60,8 @@ export async function isAdmin(): Promise<boolean> {
   const value = (await cookies()).get(COOKIE_NAME)?.value;
   if (!value) return false;
   const [expiresAt, signature] = value.split(".");
+  // L'heure courante n'est lue qu'à la requête, jamais pendant le précalcul des pages.
+  await connection();
   if (!expiresAt || !signature || Number(expiresAt) < Date.now()) return false;
   return safeEqual(signature, sign(`admin.${expiresAt}`));
 }

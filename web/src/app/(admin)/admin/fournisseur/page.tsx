@@ -1,13 +1,22 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { ExternalLink, TriangleAlert, Warehouse } from "lucide-react";
+import { ExternalLink, TriangleAlert, Wallet, Warehouse } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/typography";
 import { requireAdmin } from "@/lib/auth/admin";
+import { openCjSession } from "@/lib/cj/api";
 import { getUsdPerEur } from "@/lib/cj/exchange";
-import { getSupplierCatalog, shippedFromPhrases, type SupplierInfo } from "@/lib/cj/supplier";
+import { getCjBalance, supplierMode } from "@/lib/cj/orders";
+import {
+  fastestOption,
+  getSupplierCatalog,
+  importVatUsd,
+  orderableOptions,
+  shippedFromPhrases,
+  type SupplierInfo,
+} from "@/lib/cj/supplier";
 import { cn } from "@/lib/cn";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, formatUsd } from "@/lib/format";
 import { paymentFees, targetMarginRate, unitEconomics } from "@/lib/margin";
 import { products, type Product } from "@/lib/products";
 import { shippingConfig, site } from "@/lib/site";
@@ -16,7 +25,6 @@ export const metadata: Metadata = {
   title: "Fournisseur CJ",
 };
 
-const usd = (value: number) => `${value.toFixed(2).replace(".", ",")} $`;
 const percent = (value: number) => `${String(Math.round(value * 1000) / 10).replace(".", ",")}\u00a0%`;
 const count = (value: number) => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
@@ -39,7 +47,8 @@ function Row({ label, value, strong = false }: { label: string; value: React.Rea
 }
 
 function ProductEconomics({ product, info, usdPerEur }: { product: Product; info: SupplierInfo | null; usdPerEur: number }) {
-  if (!info || info.options.length === 0) {
+  const orderable = orderableOptions(info);
+  if (!info || orderable.length === 0) {
     return (
       <article className="rounded-[24px] bg-white p-6 ring-1 ring-black/5">
         <h2 className="text-2xl font-semibold tracking-tight">
@@ -47,18 +56,22 @@ function ProductEconomics({ product, info, usdPerEur }: { product: Product; info
         </h2>
         <p className="mt-4 flex gap-2 text-sm text-red-700">
           <TriangleAlert className="size-4 shrink-0" aria-hidden />
-          Données CJ indisponibles (clé API absente ou CJ injoignable). Voir le terminal du serveur.
+          {info
+            ? "Aucun transporteur accepté par CJ pour les commandes automatiques vers la France."
+            : "Données CJ indisponibles (clé API absente ou CJ injoignable). Voir le terminal du serveur."}
         </p>
       </article>
     );
   }
 
-  const standard = info.options[0];
-  const fastest = [...info.options].sort((a, b) => a.maxDays - b.maxDays || a.totalUsd - b.totalUsd)[0];
+  const standard = orderable[0];
+  const fastest = fastestOption(orderable)!;
+  const importVat = importVatUsd(info);
   const economics = unitEconomics({
     priceCents: product.price,
     costUsd: info.costUsd,
     shippingUsd: standard.totalUsd,
+    importVatUsd: importVat,
     usdPerEur,
     vatRate: site.vatRate,
   });
@@ -104,8 +117,9 @@ function ProductEconomics({ product, info, usdPerEur }: { product: Product; info
       <dl className="mt-4 divide-y divide-line text-sm">
         <Row label="Prix de vente TTC (site)" value={formatPrice(product.price)} />
         <Row label="dont TVA 20 %" value={`− ${formatPrice(economics.vatCents)}`} />
-        <Row label="Achat CJ" value={`− ${usd(info.costUsd)}`} />
-        <Row label={`Transport : ${standard.name} (${standard.minDays}-${standard.maxDays} j)`} value={`− ${usd(standard.totalUsd)}`} />
+        <Row label="Achat CJ" value={`− ${formatUsd(info.costUsd)}`} />
+        <Row label={`Transport : ${standard.name} (${standard.minDays}-${standard.maxDays} j)`} value={`− ${formatUsd(standard.totalUsd)}`} />
+        {importVat > 0 && <Row label="TVA d'import (IOSS de CJ, 20 % de l'achat)" value={`− ${formatUsd(importVat)}`} />}
         <Row label="Coût fournisseur en euros" value={`= ${formatPrice(economics.supplierCents)}`} />
         <Row
           label={`Frais de paiement (est. ${percent(paymentFees.rate)} + ${formatPrice(paymentFees.fixedCents)})`}
@@ -118,13 +132,14 @@ function ProductEconomics({ product, info, usdPerEur }: { product: Product; info
 
       <h3 className="mt-6 text-sm font-semibold">Transports CJ vers la France</h3>
       <ul className="mt-2 space-y-1 text-sm">
-        {info.options.map((option, i) => (
-          <li key={option.name} className="flex justify-between gap-3">
-            <span className={i === 0 ? "font-medium" : "text-muted"}>
-              {option.name} · {option.minDays}-{option.maxDays} j{i === 0 && " (standard)"}
+        {info.options.map((option) => (
+          <li key={option.name} className={cn("flex justify-between gap-3", !option.orderable && "text-faint")}>
+            <span className={option === standard ? "font-medium" : option.orderable ? "text-muted" : undefined}>
+              {option.name} · {option.minDays}-{option.maxDays} j{option === standard && " (standard)"}
               {option === fastest && expressExtraCents !== null && " (express)"}
+              {!option.orderable && " · refusé par l'API"}
             </span>
-            <span className="tabular-nums">{usd(option.totalUsd)}</span>
+            <span className="tabular-nums">{formatUsd(option.totalUsd)}</span>
           </li>
         ))}
       </ul>
@@ -135,6 +150,48 @@ function ProductEconomics({ product, info, usdPerEur }: { product: Product; info
         </p>
       )}
     </article>
+  );
+}
+
+const modeDescriptions = {
+  off: "Désactivée : les commandes restent dans l'administration (CJ_ORDER_MODE=off).",
+  sandbox: "Mode test : chaque commande payée crée une commande de test chez CJ, sans envoi ni débit réels.",
+  live: "Mode réel : chaque commande payée est passée chez CJ et payée aussitôt sur ce solde.",
+};
+
+/** Solde CJ : chaque commande y est prélevée automatiquement. */
+async function CjAccount() {
+  const mode = supplierMode();
+  let balance: number | null = null;
+  try {
+    balance = await getCjBalance(await openCjSession());
+  } catch (error) {
+    console.error("[CJ] solde illisible :", error instanceof Error ? error.message : error);
+  }
+
+  return (
+    <div className="mt-6 flex flex-col gap-4 rounded-[24px] bg-white p-6 ring-1 ring-black/5 sm:flex-row sm:items-center">
+      <div className="flex items-center gap-3">
+        <Wallet className="size-6 text-ink-soft" aria-hidden />
+        <div>
+          <p className="text-sm text-muted">Solde CJ</p>
+          <p className="text-2xl font-semibold tracking-tight tabular-nums">
+            {balance === null ? "Indisponible" : formatUsd(balance)}
+          </p>
+        </div>
+      </div>
+      <div className="text-sm text-ink-soft sm:ml-6 sm:border-l sm:border-line sm:pl-6">
+        <p>
+          <span className="font-semibold text-ink">Transmission des commandes :</span> {modeDescriptions[mode]}
+        </p>
+        {balance !== null && balance < 150 && (
+          <p className="mt-1 text-red-700">
+            Solde trop bas pour une commande (environ 115 à 135 $ par robot) : recharge-le dans ton espace CJ (Wallet)
+            avant de passer en mode réel.
+          </p>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -163,6 +220,10 @@ async function SupplierContent() {
         {fetchedAt && ` Données CJ du ${fetchedAt.slice(0, 16).replace("T", " à ")} (UTC), actualisées toutes les heures.`}
       </p>
 
+      <Suspense fallback={<div className="mt-6 h-[104px] animate-pulse rounded-[24px] bg-white/60" aria-busy="true" />}>
+        <CjAccount />
+      </Suspense>
+
       <div className="mt-8 grid gap-4 lg:grid-cols-3">
         {products.map((product, i) => (
           <ProductEconomics key={product.slug} product={product} info={infos[i]} usdPerEur={exchange.rate} />
@@ -175,8 +236,8 @@ async function SupplierContent() {
           <li>la publicité et l&apos;acquisition de clients ;</li>
           <li>les retours, remboursements et produits défectueux ;</li>
           <li>
-            les droits de douane et la gestion de la TVA à l&apos;import pour les envois depuis la Chine (guichet unique
-            IOSS pour les colis de moins de 150 €) : à valider avec un comptable ;
+            les droits de douane ; la TVA d&apos;import prélevée par CJ (IOSS) sur les envois de Chine est comptée, mais
+            son articulation avec la TVA que tu reverses sur tes ventes est à valider avec un comptable ;
           </li>
           <li>les frais de conversion euro → dollar de ta banque ou de CJ.</li>
         </ul>

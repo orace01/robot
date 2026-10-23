@@ -4,9 +4,11 @@ import { Suspense } from "react";
 import { Inbox, Search } from "lucide-react";
 import { formatDateTime, StatusBadge } from "@/components/admin/status-badge";
 import { Container } from "@/components/ui/container";
+import type { SupplierOrderRow, SupplierState } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/admin";
 import { cn } from "@/lib/cn";
 import { formatPrice } from "@/lib/format";
+import { getSupplierOrdersFor } from "@/lib/orders/fulfillment";
 import { listOrders, orderStats } from "@/lib/orders/service";
 import { isOrderStatus, ORDER_STATUSES, statusLabels, type OrderStatus } from "@/lib/orders/status";
 
@@ -27,6 +29,29 @@ export default function OrdersPage({ searchParams }: PageProps<"/admin/commandes
   );
 }
 
+/** État CJ résumé : le groupe le moins avancé l'emporte, les problèmes d'abord. */
+const supplierSummary: [SupplierState, string, string][] = [
+  ["error", "Échec", "bg-red-50 text-red-800"],
+  ["unpaid", "Non payée", "bg-red-50 text-red-800"],
+  ["cancelled", "Annulée", "bg-red-50 text-red-800"],
+  ["sending", "Envoi…", "bg-mist text-ink-soft"],
+  ["sent", "Transmise", "bg-accent-soft text-accent-strong"],
+  ["shipped", "Expédiée", "bg-indigo-50 text-indigo-800"],
+  ["delivered", "Livrée", "bg-green-50 text-green-800"],
+];
+
+function SupplierCell({ shipments }: { shipments: SupplierOrderRow[] }) {
+  const summary = supplierSummary.find(([state]) => shipments.some((row) => row.state === state));
+  if (!summary) return <span className="text-faint">—</span>;
+  const [, label, tone] = summary;
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span className={cn("rounded-full px-2.5 py-0.5 text-xs font-medium", tone)}>{label}</span>
+      {shipments.some((row) => row.sandbox) && <span className="eyebrow text-amber-800">Test</span>}
+    </span>
+  );
+}
+
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-[20px] bg-white p-5 ring-1 ring-black/5">
@@ -43,6 +68,7 @@ async function OrdersContent({ searchParams }: { searchParams: SearchParams }) {
   const query = typeof params.q === "string" ? params.q : "";
 
   const [rows, stats] = await Promise.all([listOrders({ status, query }), orderStats()]);
+  const shipments = await getSupplierOrdersFor(rows.map((row) => row.id));
   const countOf = (s: OrderStatus) => stats.find((row) => row.status === s)?.orders ?? 0;
   const totalCount = stats.reduce((sum, row) => sum + row.orders, 0);
   const revenue = stats
@@ -60,7 +86,7 @@ async function OrdersContent({ searchParams }: { searchParams: SearchParams }) {
   return (
     <>
       <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="À traiter (payées)" value={String(countOf("paid"))} />
+        <StatCard label="Payées, en cours d'envoi à CJ" value={String(countOf("paid"))} />
         <StatCard label="En préparation" value={String(countOf("processing"))} />
         <StatCard label="Expédiées" value={String(countOf("shipped"))} />
         <StatCard label="Chiffre d'affaires TTC" value={formatPrice(revenue)} />
@@ -107,7 +133,7 @@ async function OrdersContent({ searchParams }: { searchParams: SearchParams }) {
         </div>
       ) : (
         <div className="mt-6 overflow-x-auto rounded-[24px] bg-white ring-1 ring-black/5">
-          <table className="w-full min-w-[820px] text-left text-sm">
+          <table className="w-full min-w-[920px] text-left text-sm">
             <thead className="border-b border-line text-muted">
               <tr>
                 <th className="px-5 py-3 font-normal">Commande</th>
@@ -116,6 +142,7 @@ async function OrdersContent({ searchParams }: { searchParams: SearchParams }) {
                 <th className="px-5 py-3 font-normal">Robots</th>
                 <th className="px-5 py-3 text-right font-normal">Total</th>
                 <th className="px-5 py-3 font-normal">Statut</th>
+                <th className="px-5 py-3 font-normal">CJ</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
@@ -139,6 +166,9 @@ async function OrdersContent({ searchParams }: { searchParams: SearchParams }) {
                   <td className="px-5 py-3.5 text-right font-medium tabular-nums">{formatPrice(order.total)}</td>
                   <td className="px-5 py-3.5">
                     <StatusBadge status={order.status} />
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <SupplierCell shipments={shipments.get(order.id) ?? []} />
                   </td>
                 </tr>
               ))}

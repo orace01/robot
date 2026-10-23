@@ -1,5 +1,7 @@
 "use server";
 
+import { after } from "next/server";
+import { syncSupplierOrders } from "@/lib/orders/fulfillment";
 import { findOrderForCustomer } from "@/lib/orders/service";
 import { statusLabels, type OrderStatus } from "@/lib/orders/status";
 
@@ -12,6 +14,7 @@ export interface TrackedOrder {
   deliveryMinDays: number;
   deliveryMaxDays: number;
   carrier: string | null;
+  /** Un ou plusieurs numéros, séparés par des virgules. */
   trackingNumber: string | null;
   items: { name: string; quantity: number }[];
   events: { message: string; date: string }[];
@@ -26,6 +29,10 @@ export async function trackOrder(number: string, email: string): Promise<TrackOr
   const order = await findOrderForCustomer(number, email);
   if (!order) {
     return { ok: false, message: "Aucune commande ne correspond à ce numéro et à cette adresse e-mail." };
+  }
+  // Nouvelles de CJ si les dernières datent de plus de 30 minutes : visibles à la consultation suivante.
+  if (["paid", "processing", "shipped"].includes(order.status)) {
+    after(() => syncSupplierOrders({ orderId: order.id, staleMinutes: 30 }));
   }
   return {
     ok: true,

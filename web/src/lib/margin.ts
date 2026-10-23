@@ -10,7 +10,7 @@ export const paymentFees = { rate: 0.015, fixedCents: 25 };
 export const targetMarginRate = 0.35;
 
 export interface UnitEconomics {
-  /** Achat + transport, convertis en euros (centimes). */
+  /** Achat + transport + TVA d'import facturée par CJ, convertis en euros (centimes). */
   supplierCents: number;
   /** Prix de vente hors TVA (centimes). */
   netCents: number;
@@ -29,16 +29,19 @@ export function unitEconomics({
   priceCents,
   costUsd,
   shippingUsd,
+  importVatUsd = 0,
   usdPerEur,
   vatRate,
 }: {
   priceCents: number;
   costUsd: number;
   shippingUsd: number;
+  /** TVA d'import prélevée par CJ (IOSS) sur les envois hors Union européenne. */
+  importVatUsd?: number;
   usdPerEur: number;
   vatRate: number;
 }): UnitEconomics {
-  const supplierCents = Math.round(((costUsd + shippingUsd) / usdPerEur) * 100);
+  const supplierCents = Math.round(((costUsd + shippingUsd + importVatUsd) / usdPerEur) * 100);
   const netCents = Math.round(priceCents / (1 + vatRate));
   const feesCents = Math.round(priceCents * paymentFees.rate + paymentFees.fixedCents);
   const marginCents = netCents - supplierCents - feesCents;

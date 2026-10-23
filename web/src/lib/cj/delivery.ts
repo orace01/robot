@@ -4,14 +4,24 @@ import { cacheLife, cacheTag } from "next/cache";
 import type { DeliveryMap, ProductDelivery } from "@/lib/delivery";
 import { products } from "@/lib/products";
 import { shippingConfig } from "@/lib/site";
-import { europeanWarehouses, getSupplierCatalog, shippedFromPhrases, type CjShippingOption, type SupplierInfo } from "./supplier";
+import {
+  europeanWarehouses,
+  fastestOption,
+  getSupplierCatalog,
+  orderableOptions,
+  shippedFromPhrases,
+  type CjShippingOption,
+  type SupplierInfo,
+} from "./supplier";
 
 function toDelivery(info: SupplierInfo | null, shipFrom: string): ProductDelivery {
   const base = {
     shippedFrom: shippedFromPhrases[shipFrom] ?? `de ${shipFrom}`,
     fromEurope: europeanWarehouses.has(shipFrom),
   };
-  if (!info || info.options.length === 0) {
+  // Seuls les transporteurs acceptés par CJ pour les commandes API comptent.
+  const options = orderableOptions(info);
+  if (!info || options.length === 0) {
     return { ...base, standard: shippingConfig.fallback, express: null, inStock: true, live: false };
   }
 
@@ -21,8 +31,8 @@ function toDelivery(info: SupplierInfo | null, shipFrom: string): ProductDeliver
     maxDays: option.maxDays + max,
   });
   // Standard : l'option la moins chère. Express : la plus rapide, si elle l'est vraiment.
-  const cheapest = info.options[0];
-  const fastest = [...info.options].sort((a, b) => a.maxDays - b.maxDays || a.totalUsd - b.totalUsd)[0];
+  const cheapest = options[0];
+  const fastest = fastestOption(options)!;
 
   return {
     ...base,

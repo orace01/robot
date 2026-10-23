@@ -1,4 +1,4 @@
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 import { ORDER_STATUSES } from "../lib/orders/status";
 
 /** Montants en centimes d'euro TTC ; dates en millisecondes. */
@@ -35,8 +35,6 @@ export const orders = sqliteTable(
     /** Paiement (étape suivante : agrégateur de paiement). */
     paymentProvider: text("payment_provider"),
     paymentReference: text("payment_reference"),
-    /** Commande correspondante chez CJ Dropshipping. */
-    supplierOrderId: text("supplier_order_id"),
     carrier: text("carrier"),
     trackingNumber: text("tracking_number"),
 
@@ -68,7 +66,10 @@ export const orderItems = sqliteTable(
   (table) => [index("order_items_order_idx").on(table.orderId)],
 );
 
-/** Historique d'une commande : changements de statut, suivi colis, notes internes. */
+/**
+ * Historique d'une commande : changements de statut, suivi colis, notes internes et
+ * échanges avec le fournisseur (« supplier », visibles dans l'administration seulement).
+ */
 export const orderEvents = sqliteTable(
   "order_events",
   {
@@ -76,7 +77,7 @@ export const orderEvents = sqliteTable(
     orderId: integer("order_id")
       .notNull()
       .references(() => orders.id, { onDelete: "cascade" }),
-    type: text("type", { enum: ["status", "tracking", "note"] }).notNull(),
+    type: text("type", { enum: ["status", "tracking", "note", "supplier"] }).notNull(),
     status: text("status", { enum: ORDER_STATUSES }),
     message: text("message").notNull(),
     /** Affiché au client sur la page de suivi. */
@@ -86,6 +87,46 @@ export const orderEvents = sqliteTable(
   (table) => [index("order_events_order_idx").on(table.orderId)],
 );
 
+/** États d'une commande transmise à CJ (voir lib/orders/fulfillment.ts). */
+export const SUPPLIER_STATES = ["sending", "sent", "unpaid", "shipped", "delivered", "cancelled", "error"] as const;
+
+/**
+ * Commandes passées chez CJ Dropshipping : une par entrepôt d'expédition
+ * (un panier S2 + Q3 part d'Allemagne et de Chine, donc deux commandes CJ).
+ */
+export const supplierOrders = sqliteTable(
+  "supplier_orders",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    orderId: integer("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    fromCountry: text("from_country").notNull(),
+    /** Numéro de commande transmis à CJ (CL-123456, préfixé TEST- en mode sandbox). */
+    reference: text("reference").notNull(),
+    /** Transporteur CJ, choisi au moment de la transmission. */
+    logisticName: text("logistic_name"),
+    /** Commande de test CJ (aucun envoi ni débit réels). */
+    sandbox: integer("sandbox", { mode: "boolean" }).notNull(),
+    state: text("state", { enum: SUPPLIER_STATES }).notNull(),
+    /** Nombre d'essais de transmission. */
+    attempts: integer("attempts").notNull().default(0),
+    cjOrderId: text("cj_order_id"),
+    cjStatus: text("cj_status"),
+    /** Montant réellement facturé par CJ, en centimes de dollar. */
+    amountUsdCents: integer("amount_usd_cents"),
+    trackNumber: text("track_number"),
+    trackingUrl: text("tracking_url"),
+    error: text("error"),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+    syncedAt: integer("synced_at", { mode: "timestamp_ms" }),
+  },
+  (table) => [uniqueIndex("supplier_orders_order_origin_idx").on(table.orderId, table.fromCountry)],
+);
+
 export type OrderRow = typeof orders.$inferSelect;
 export type OrderItemRow = typeof orderItems.$inferSelect;
 export type OrderEventRow = typeof orderEvents.$inferSelect;
+export type SupplierOrderRow = typeof supplierOrders.$inferSelect;
+export type SupplierState = (typeof SUPPLIER_STATES)[number];

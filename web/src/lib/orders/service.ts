@@ -212,6 +212,18 @@ export async function addOrderNote(number: string, message: string): Promise<voi
   });
 }
 
+/** Échange avec le fournisseur CJ, consigné dans l'historique (administration seulement). */
+export async function addSupplierEvent(orderId: number, message: string): Promise<void> {
+  const db = await getDb();
+  await db.insert(orderEvents).values({
+    orderId,
+    type: "supplier",
+    message,
+    visibleToCustomer: false,
+    createdAt: new Date(),
+  });
+}
+
 async function withDetails(order: OrderRow, { customerView = false } = {}): Promise<OrderWithDetails> {
   const db = await getDb();
   const [items, events] = await Promise.all([

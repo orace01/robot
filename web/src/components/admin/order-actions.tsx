@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, RefreshCw, Send } from "lucide-react";
 import {
+  refreshFromSupplier,
   saveOrderNote,
+  sendOrderToSupplier,
   saveOrderTracking,
   updateOrderStatus,
   type AdminActionResult,
@@ -68,6 +70,40 @@ export function StatusActions({ number, status }: { number: string; status: Orde
             {actionLabels[target]}
           </Button>
         ))}
+        {pending && <LoaderCircle className="size-5 animate-spin self-center text-muted" aria-hidden />}
+      </div>
+      <ErrorMessage error={error} />
+    </div>
+  );
+}
+
+export function SupplierActions({
+  number,
+  canSend,
+  canRefresh,
+}: {
+  number: string;
+  canSend: boolean;
+  canRefresh: boolean;
+}) {
+  const { pending, error, execute } = useAdminAction();
+  if (!canSend && !canRefresh) return null;
+
+  return (
+    <div>
+      <div className="flex flex-wrap gap-2">
+        {canSend && (
+          <Button size="sm" disabled={pending} onClick={() => execute(() => sendOrderToSupplier(number))}>
+            <Send className="size-4" aria-hidden />
+            Transmettre à CJ
+          </Button>
+        )}
+        {canRefresh && (
+          <Button size="sm" variant="secondary" disabled={pending} onClick={() => execute(() => refreshFromSupplier(number))}>
+            <RefreshCw className="size-4" aria-hidden />
+            Actualiser depuis CJ
+          </Button>
+        )}
         {pending && <LoaderCircle className="size-5 animate-spin self-center text-muted" aria-hidden />}
       </div>
       <ErrorMessage error={error} />

@@ -37,3 +37,9 @@ export function addDays(from: Date, days: number): Date {
 export function pluralize(count: number, singular: string, plural = `${singular}s`): string {
   return `${count} ${count > 1 ? plural : singular}`;
 }
+
+/** 127.36 → « 127,36 $ » (montants CJ, en dollars). */
+export function formatUsd(dollars: number): string {
+  const [int, rest] = Math.abs(dollars).toFixed(2).split(".");
+  return `${dollars < 0 ? "-" : ""}${int.replace(/\B(?=(\d{3})+(?!\d))/g, NNBSP)},${rest}${NBSP}$`;
+}

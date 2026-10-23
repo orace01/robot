@@ -2,7 +2,9 @@
 
 import { refresh } from "next/cache";
 import { requireAdmin } from "@/lib/auth/admin";
-import { addOrderNote, changeOrderStatus, OrderError, setTracking } from "@/lib/orders/service";
+import { supplierMode } from "@/lib/cj/orders";
+import { forwardOrderToSupplier, syncSupplierOrders } from "@/lib/orders/fulfillment";
+import { addOrderNote, changeOrderStatus, getOrder, OrderError, setTracking } from "@/lib/orders/service";
 import { isOrderStatus } from "@/lib/orders/status";
 
 export type AdminActionResult = { error?: string };
@@ -44,4 +46,34 @@ export async function saveOrderNote(number: string, message: string): Promise<Ad
   const note = text(message, 1000);
   if (!orderNumber || !note) return { error: "La note est vide." };
   return run(() => addOrderNote(orderNumber, note));
+}
+
+async function findOrder(number: string) {
+  const order = await getOrder(number);
+  if (!order) throw new OrderError("Commande introuvable.");
+  return order;
+}
+
+/** Transmet (ou retransmet après un échec) une commande payée à CJ. */
+export async function sendOrderToSupplier(number: string): Promise<AdminActionResult> {
+  await requireAdmin();
+  const orderNumber = text(number, 20);
+  if (!orderNumber) return { error: "Demande invalide." };
+  if (supplierMode() === "off") return { error: "Transmission à CJ désactivée (CJ_ORDER_MODE=off dans .env.local)." };
+  return run(async () => {
+    const order = await findOrder(orderNumber);
+    if (order.status !== "paid") throw new OrderError("Seules les commandes payées, pas encore en préparation, partent chez CJ.");
+    await forwardOrderToSupplier(order.id);
+  });
+}
+
+/** Relit tout de suite l'état de la commande chez CJ (sinon fait par la tâche planifiée). */
+export async function refreshFromSupplier(number: string): Promise<AdminActionResult> {
+  await requireAdmin();
+  const orderNumber = text(number, 20);
+  if (!orderNumber) return { error: "Demande invalide." };
+  return run(async () => {
+    const order = await findOrder(orderNumber);
+    await syncSupplierOrders({ orderId: order.id });
+  });
 }

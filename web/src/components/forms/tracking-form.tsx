@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CircleCheck, LoaderCircle, MapPin, PackageCheck, Search, Truck, XCircle } from "lucide-react";
+import { CircleCheck, ExternalLink, LoaderCircle, MapPin, PackageCheck, Search, Truck, XCircle } from "lucide-react";
 import { trackOrder, type TrackedOrder } from "@/app/(boutique)/suivi/actions";
 import { Field } from "@/components/forms/field";
 import { Button } from "@/components/ui/button";
@@ -79,9 +79,19 @@ function OrderTimeline({ order }: { order: TrackedOrder }) {
       )}
 
       {order.trackingNumber && (
-        <p className="mt-8 rounded-[16px] bg-accent-soft p-4 text-sm text-accent-strong">
-          Numéro de suivi {order.carrier} : <span className="font-mono font-medium">{order.trackingNumber}</span>
-        </p>
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-3 rounded-[16px] bg-accent-soft p-4 text-sm text-accent-strong">
+          <p>
+            Numéro de suivi {order.carrier} : <span className="font-mono font-medium">{order.trackingNumber}</span>
+          </p>
+          <a
+            href={`https://t.17track.net/fr#nums=${encodeURIComponent(order.trackingNumber.replace(/\s/g, ""))}`}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 font-medium underline-offset-4 hover:underline"
+          >
+            Suivre le colis <ExternalLink className="size-3.5" aria-hidden />
+          </a>
+        </div>
       )}
 
       <h3 className="mt-8 text-sm font-semibold">Historique</h3>
