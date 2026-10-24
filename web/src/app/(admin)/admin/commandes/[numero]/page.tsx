@@ -210,7 +210,7 @@ async function OrderContent({ params }: { params: Params }) {
                   <dd className="tabular-nums">− {formatPrice(cost.cents)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-muted">Frais de paiement estimés</dt>
+                  <dt className="text-muted">Frais de paiement ({Math.round(paymentFees.rate * 100)} %)</dt>
                   <dd className="tabular-nums">− {formatPrice(fees)}</dd>
                 </div>
                 <div className={cn("flex justify-between text-base font-semibold", margin < 0 && "text-red-700")}>
@@ -335,7 +335,11 @@ async function OrderContent({ params }: { params: Params }) {
               <div className="flex justify-between gap-4">
                 <dt className="text-muted">Paiement</dt>
                 <dd className="text-right">
-                  {order.paymentProvider ? `${order.paymentProvider} · ${order.paymentReference}` : "Non payé"}
+                  {order.paidAt
+                    ? `${order.paymentProvider} · ${order.paymentReference}`
+                    : order.paymentProvider
+                      ? `En attente (${order.paymentProvider} · ${order.paymentReference})`
+                      : "Non payé"}
                 </dd>
               </div>
             </dl>

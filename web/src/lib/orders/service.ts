@@ -109,14 +109,31 @@ export async function createOrder(input: NewOrder): Promise<OrderRow> {
   });
 }
 
-/** Enregistre le paiement d'une commande (appelé par le futur agrégateur de paiement). */
-export async function markOrderPaid(orderId: number, payment: { provider: string; reference: string }) {
+const paidMessages: Record<string, string> = {
+  simulation: "Paiement confirmé (simulation)",
+  mepaye_test: "Paiement confirmé (paiement de test)",
+};
+
+/** Rattache à la commande le paiement en cours (page de paiement ouverte, pas encore payé). */
+export async function attachPayment(orderId: number, payment: { provider: string; reference: string }) {
+  const db = await getDb();
+  await db
+    .update(orders)
+    .set({ paymentProvider: payment.provider, paymentReference: payment.reference, updatedAt: new Date() })
+    .where(eq(orders.id, orderId));
+}
+
+/**
+ * Enregistre le paiement d'une commande. Renvoie false si elle n'attendait plus de
+ * paiement (déjà payée, annulée…) : rien n'est modifié.
+ */
+export async function markOrderPaid(orderId: number, payment: { provider: string; reference: string }): Promise<boolean> {
   const db = await getDb();
   const now = new Date();
-  await db.transaction(async (tx) => {
+  return db.transaction(async (tx) => {
     const [order] = await tx.select().from(orders).where(eq(orders.id, orderId)).limit(1);
     if (!order) throw new OrderError("Commande introuvable.");
-    if (order.status !== "pending_payment") return;
+    if (order.status !== "pending_payment") return false;
     await tx
       .update(orders)
       .set({
@@ -131,10 +148,11 @@ export async function markOrderPaid(orderId: number, payment: { provider: string
       orderId,
       type: "status",
       status: "paid",
-      message: payment.provider === "simulation" ? "Paiement confirmé (simulation)" : statusMessages.paid,
+      message: paidMessages[payment.provider] ?? statusMessages.paid,
       visibleToCustomer: true,
       createdAt: now,
     });
+    return true;
   });
 }
 

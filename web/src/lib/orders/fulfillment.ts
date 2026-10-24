@@ -15,6 +15,7 @@ import { openCjSession, type CjRequest } from "@/lib/cj/api";
 import { getCjOrder, placeCjOrder, supplierMode, supplierStateFromCj, type CjOrderDetail } from "@/lib/cj/orders";
 import { fastestOption, getSupplierCatalog, orderableOptions, type SupplierCatalog } from "@/lib/cj/supplier";
 import { formatUsd } from "@/lib/format";
+import { TEST_PAYMENT_PROVIDERS } from "@/lib/payments/mepaye";
 import { getProduct } from "@/lib/products";
 import { addSupplierEvent, changeOrderStatus, setTracking } from "./service";
 
@@ -140,8 +141,8 @@ export async function forwardOrderToSupplier(orderId: number): Promise<void> {
   const db = await getDb();
   const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
   if (!order || order.status !== "paid") return;
-  // Une commande au paiement simulé ne part jamais en vraie commande CJ.
-  const sandbox = mode === "sandbox" || order.paymentProvider === "simulation";
+  // Une commande au paiement simulé ou de test ne part jamais en vraie commande CJ.
+  const sandbox = mode === "sandbox" || !order.paymentProvider || TEST_PAYMENT_PROVIDERS.includes(order.paymentProvider);
 
   let groups: Map<string, OrderItemRow[]>;
   try {

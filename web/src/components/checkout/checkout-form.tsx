@@ -3,7 +3,7 @@
 import { useLayoutEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CreditCard, LoaderCircle, Lock, ShoppingBag } from "lucide-react";
+import { CreditCard, LoaderCircle, Lock, ShieldCheck, ShoppingBag } from "lucide-react";
 import { OrderSummary } from "@/components/checkout/order-summary";
 import { Field } from "@/components/forms/field";
 import { MockupBadge } from "@/components/ui/badges";
@@ -29,7 +29,7 @@ function Step({ number, title, children }: { number: number; title: string; chil
   );
 }
 
-export function CheckoutForm({ deliveries }: { deliveries: DeliveryMap }) {
+export function CheckoutForm({ deliveries, simulatedPayment }: { deliveries: DeliveryMap; simulatedPayment: boolean }) {
   const router = useRouter();
   const { items, subtotal } = useCart();
   const [fields, setFields] = useState(EMPTY_CUSTOMER);
@@ -39,6 +39,7 @@ export function CheckoutForm({ deliveries }: { deliveries: DeliveryMap }) {
   const [terms, setTerms] = useState(false);
   const [newsletter, setNewsletter] = useState(false);
   const [paying, setPaying] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
 
   // Next.js garde la page montée (masquée) après la navigation : on la remet à zéro
   // quand elle disparaît, pour qu'un retour arrière n'affiche pas l'ancien formulaire.
@@ -49,6 +50,7 @@ export function CheckoutForm({ deliveries }: { deliveries: DeliveryMap }) {
       setFormError(undefined);
       setTerms(false);
       setPaying(false);
+      setRedirecting(false);
     },
     [],
   );
@@ -119,6 +121,12 @@ export function CheckoutForm({ deliveries }: { deliveries: DeliveryMap }) {
       return;
     }
     saveOrder(result.order);
+    if (result.paymentUrl) {
+      // Paiement sur la page sécurisée de Mepaye. Le panier n'est vidé qu'une fois le paiement confirmé.
+      setRedirecting(true);
+      window.location.assign(result.paymentUrl);
+      return;
+    }
     cart.clear();
     router.push("/commande/confirmation");
   }
@@ -209,15 +217,27 @@ export function CheckoutForm({ deliveries }: { deliveries: DeliveryMap }) {
         </Step>
 
         <Step number={4} title="Paiement">
-          <div className="rounded-[16px] border border-dashed border-line bg-canvas p-6 text-center">
-            <CreditCard className="mx-auto size-7 stroke-[1.4] text-ink-soft" aria-hidden />
-            <p className="mt-3 font-medium">Le module de paiement sécurisé s&apos;affichera ici.</p>
-            <p className="mx-auto mt-1 max-w-sm text-sm text-muted">
-              Il sera fourni par l&apos;agrégateur de paiement : vos données bancaires ne transitent jamais par nos
-              serveurs.
-            </p>
-            <MockupBadge className="mt-4">Paiement simulé : aucun débit</MockupBadge>
-          </div>
+          {simulatedPayment ? (
+            <div className="rounded-[16px] border border-dashed border-line bg-canvas p-6 text-center">
+              <CreditCard className="mx-auto size-7 stroke-[1.4] text-ink-soft" aria-hidden />
+              <p className="mt-3 font-medium">Paiement sécurisé par carte bancaire</p>
+              <p className="mx-auto mt-1 max-w-sm text-sm text-muted">
+                Vos données bancaires ne transitent jamais par nos serveurs.
+              </p>
+              <MockupBadge className="mt-4">Paiement simulé : aucun débit</MockupBadge>
+            </div>
+          ) : (
+            <div className="flex gap-4 rounded-[16px] bg-canvas p-5">
+              <ShieldCheck className="size-6 shrink-0 stroke-[1.5] text-ink-soft" aria-hidden />
+              <div>
+                <p className="font-medium">Paiement sécurisé par carte bancaire</p>
+                <p className="mt-1 text-sm text-muted">
+                  Après avoir cliqué sur « Payer », vous êtes redirigé vers la page de paiement sécurisée de notre
+                  prestataire. Vos données bancaires ne transitent jamais par nos serveurs.
+                </p>
+              </div>
+            </div>
+          )}
         </Step>
       </div>
 
@@ -261,7 +281,8 @@ export function CheckoutForm({ deliveries }: { deliveries: DeliveryMap }) {
             <Button type="submit" size="lg" className="mt-5 w-full" disabled={paying}>
               {paying ? (
                 <>
-                  <LoaderCircle className="size-4 animate-spin" aria-hidden /> Paiement en cours…
+                  <LoaderCircle className="size-4 animate-spin" aria-hidden />
+                  {redirecting ? "Redirection vers le paiement…" : "Paiement en cours…"}
                 </>
               ) : (
                 <>

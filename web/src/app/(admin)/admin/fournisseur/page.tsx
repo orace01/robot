@@ -122,7 +122,7 @@ function ProductEconomics({ product, info, usdPerEur }: { product: Product; info
         {importVat > 0 && <Row label="TVA d'import (IOSS de CJ, 20 % de l'achat)" value={`− ${formatUsd(importVat)}`} />}
         <Row label="Coût fournisseur en euros" value={`= ${formatPrice(economics.supplierCents)}`} />
         <Row
-          label={`Frais de paiement (est. ${percent(paymentFees.rate)} + ${formatPrice(paymentFees.fixedCents)})`}
+          label={`Frais de paiement (${percent(paymentFees.rate)}${paymentFees.fixedCents ? ` + ${formatPrice(paymentFees.fixedCents)}` : ""})`}
           value={`− ${formatPrice(economics.feesCents)}`}
         />
         <Row label="Marge brute" value={formatPrice(economics.marginCents)} strong />

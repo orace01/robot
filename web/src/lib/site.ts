@@ -21,11 +21,6 @@ export const site = {
    * À passer à false avant la mise en ligne.
    */
   mockup: true,
-  /**
-   * « simulation » : la commande est marquée payée sans paiement réel, en attendant
-   * le branchement de l'agrégateur de paiement.
-   */
-  paymentMode: "simulation",
 } as const;
 
 /**

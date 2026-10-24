@@ -1,16 +1,48 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore, useTransition } from "react";
 import Link from "next/link";
-import { Check, CircleCheck, Mail, PackageCheck, Truck } from "lucide-react";
+import { Check, CircleCheck, Clock, LoaderCircle, Lock, Mail, PackageCheck, Truck } from "lucide-react";
+import { checkPayment, resumePayment } from "@/app/(tunnel)/commande/actions";
 import { MockupBadge } from "@/components/ui/badges";
-import { ButtonLink } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
+import { cart } from "@/lib/cart";
 import { addDays, formatPrice, formatShortDate } from "@/lib/format";
-import { getOrderSnapshot, parseOrder } from "@/lib/order";
+import { getOrderSnapshot, parseOrder, type PlacedOrder } from "@/lib/order";
+import type { OrderStatus } from "@/lib/orders/status";
 import { getProduct } from "@/lib/products";
 import { site } from "@/lib/site";
 
 const noop = () => () => {};
+
+/** Vérification du paiement : toutes les 3 secondes pendant une minute environ. */
+const POLL_INTERVAL_MS = 3000;
+const POLL_ATTEMPTS = 20;
+const PAID: OrderStatus[] = ["paid", "processing", "shipped", "delivered"];
+
+/** Statut de la commande côté serveur ; undefined tant que la première réponse n'est pas arrivée. */
+function useOrderStatus(order: PlacedOrder) {
+  const [state, setState] = useState<{ status?: OrderStatus | null; polling: boolean }>({ polling: true });
+  useEffect(() => {
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let attempts = 0;
+    async function poll() {
+      const status = await checkPayment(order.number, order.email).catch(() => undefined);
+      if (stopped) return;
+      attempts += 1;
+      const again = (status === "pending_payment" || status === undefined) && attempts < POLL_ATTEMPTS;
+      setState({ status, polling: again });
+      if (again) timer = setTimeout(poll, POLL_INTERVAL_MS);
+    }
+    poll();
+    return () => {
+      stopped = true;
+      clearTimeout(timer);
+    };
+  }, [order.number, order.email]);
+  return state;
+}
 
 export function ConfirmationView() {
   // undefined côté serveur (chargement), null si aucune commande en mémoire.
@@ -22,19 +54,102 @@ export function ConfirmationView() {
   }
 
   if (order === null) {
+    return <NoOrder />;
+  }
+  if (order.payment === "online") return <OnlinePayment order={order} />;
+  return <ConfirmedOrder order={order} />;
+}
+
+function NoOrder() {
+  return (
+    <div className="mx-auto max-w-lg rounded-[28px] bg-white px-6 py-16 text-center ring-1 ring-black/5">
+      <p className="text-2xl font-semibold tracking-tight">Aucune commande récente</p>
+      <p className="mt-2 text-ink-soft">
+        Retrouvez l&apos;état de vos commandes avec votre numéro de commande et votre adresse e-mail.
+      </p>
+      <ButtonLink href="/suivi" size="lg" className="mt-8">
+        Suivre une commande
+      </ButtonLink>
+    </div>
+  );
+}
+
+/** Retour de la page de paiement Mepaye : on attend la confirmation envoyée par Mepaye au serveur. */
+function OnlinePayment({ order }: { order: PlacedOrder }) {
+  const { status, polling } = useOrderStatus(order);
+  const paid = status ? PAID.includes(status) : false;
+
+  useEffect(() => {
+    if (paid) cart.clear();
+  }, [paid]);
+
+  if (paid) return <ConfirmedOrder order={order} />;
+  if (status === "cancelled" || status === "refunded") {
     return (
-      <div className="mx-auto max-w-lg rounded-[28px] bg-white px-6 py-16 text-center ring-1 ring-black/5">
-        <p className="text-2xl font-semibold tracking-tight">Aucune commande récente</p>
-        <p className="mt-2 text-ink-soft">
-          Retrouvez l&apos;état de vos commandes avec votre numéro de commande et votre adresse e-mail.
-        </p>
-        <ButtonLink href="/suivi" size="lg" className="mt-8">
-          Suivre une commande
-        </ButtonLink>
-      </div>
+      <Message title="Commande annulée">
+        La commande <span className="font-semibold text-ink">{order.number}</span> a été annulée. Vous pouvez repasser
+        commande depuis votre panier.
+      </Message>
     );
   }
+  return <PaymentPending order={order} checking={polling} />;
+}
 
+function Message({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) {
+  return (
+    <div className="mx-auto max-w-xl rounded-[28px] bg-white px-6 py-14 text-center ring-1 ring-black/5 sm:px-12">
+      <p className="text-2xl font-semibold tracking-tight">{title}</p>
+      <p className="mt-3 text-ink-soft">{children}</p>
+      {action}
+    </div>
+  );
+}
+
+function PaymentPending({ order, checking }: { order: PlacedOrder; checking: boolean }) {
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string>();
+
+  const pay = () =>
+    startTransition(async () => {
+      setError(undefined);
+      const result = await resumePayment(order.number, order.email);
+      if (result.ok) window.location.assign(result.paymentUrl);
+      else setError(result.message);
+    });
+
+  return (
+    <Message
+      title={checking ? "Confirmation du paiement…" : "Paiement en attente"}
+      action={
+        <div className="mt-8 flex flex-col items-center gap-3">
+          {checking && <LoaderCircle className="size-6 animate-spin text-muted" aria-hidden />}
+          <div className="flex flex-wrap justify-center gap-3">
+            <Button size="lg" onClick={pay} disabled={pending}>
+              {pending ? <LoaderCircle className="size-4 animate-spin" aria-hidden /> : <Lock className="size-4" aria-hidden />}
+              Payer {formatPrice(order.total)}
+            </Button>
+            <ButtonLink href="/panier" variant="secondary" size="lg">
+              Modifier mon panier
+            </ButtonLink>
+          </div>
+          {error && (
+            <p role="alert" className="rounded-[12px] bg-red-50 p-3 text-sm text-red-800">
+              {error}
+            </p>
+          )}
+        </div>
+      }
+    >
+      <Clock className="mx-auto mb-3 size-6 text-muted" aria-hidden />
+      Votre commande <span className="font-semibold text-ink">{order.number}</span> est enregistrée.{" "}
+      {checking
+        ? "Si vous venez de payer, la confirmation arrive dans quelques secondes : cette page se met à jour toute seule."
+        : "Nous n'avons pas encore reçu la confirmation de votre paiement. Si le paiement n'a pas abouti, vous pouvez le reprendre."}
+    </Message>
+  );
+}
+
+function ConfirmedOrder({ order }: { order: PlacedOrder }) {
   const placedAt = new Date(order.placedAt);
   const steps = [
     { icon: CircleCheck, title: "Commande confirmée", text: `Le ${formatShortDate(placedAt)}`, done: true },
@@ -61,7 +176,11 @@ export function ConfirmationView() {
           Votre commande <span className="font-semibold text-ink">{order.number}</span> est confirmée. Un e-mail
           récapitulatif vient d&apos;être envoyé à <span className="font-medium text-ink">{order.email}</span>.
         </p>
-        <MockupBadge className="mt-4">Simulation : aucun paiement ni e-mail réel</MockupBadge>
+        {order.payment === "simulated" ? (
+          <MockupBadge className="mt-4">Simulation : aucun paiement ni e-mail réel</MockupBadge>
+        ) : (
+          site.mockup && <MockupBadge className="mt-4">E-mails pas encore envoyés</MockupBadge>
+        )}
 
         <ol className="mt-10 space-y-0">
           {steps.map(({ icon: Icon, title, text, done }, i) => (

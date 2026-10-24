@@ -3,8 +3,8 @@
  * frais de change.
  */
 
-/** Frais de paiement estimés (ordre de grandeur des cartes européennes). */
-export const paymentFees = { rate: 0.015, fixedCents: 25 };
+/** Frais de paiement : commission Mepaye de 5 % par vente, sans frais fixe. */
+export const paymentFees = { rate: 0.05, fixedCents: 0 };
 
 /** Marge visée pour le prix conseillé, en part du prix hors taxes. */
 export const targetMarginRate = 0.35;

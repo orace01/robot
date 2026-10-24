@@ -2,7 +2,7 @@ import "server-only";
 
 import type { SupplierState } from "@/db/schema";
 import { regionFromPostalCode } from "@/lib/orders/regions";
-import { site } from "@/lib/site";
+import { livePayments } from "@/lib/payments/mepaye";
 import { CjError, type CjRequest } from "./api";
 import { europeanWarehouses } from "./supplier";
 
@@ -13,15 +13,16 @@ import { europeanWarehouses } from "./supplier";
  * - « sandbox » (par défaut) : commandes de test CJ, sans envoi ni débit réels ;
  * - « live » : vraies commandes, payées automatiquement sur le solde CJ ;
  * - « off » : aucune transmission.
- * Tant que le paiement client est simulé, le mode « live » est ramené à « sandbox »,
- * pour ne jamais créer de vraie commande CJ à partir d'une commande de test.
+ * Tant que les paiements clients ne sont pas réels (pas de clé Mepaye « mp_live_ »), le mode
+ * « live » est ramené à « sandbox », pour ne jamais créer de vraie commande CJ à partir
+ * d'une commande de test.
  */
 export type SupplierMode = "off" | "sandbox" | "live";
 
 export function supplierMode(): SupplierMode {
   const mode = process.env.CJ_ORDER_MODE ?? "sandbox";
   if (mode === "off") return "off";
-  if (mode === "live" && site.paymentMode !== "simulation") return "live";
+  if (mode === "live" && livePayments()) return "live";
   return "sandbox";
 }
 

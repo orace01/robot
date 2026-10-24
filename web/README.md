@@ -1,8 +1,7 @@
 # Boutique de robots laveurs de vitres
 
-Le site complet : pages, panier, tunnel de commande, administration, liaison CJ Dropshipping
-(prix, stock, délais, transmission automatique des commandes et suivi des colis).
-Le paiement client est encore simulé : l'agrégateur de paiement est l'étape suivante.
+Le site complet : pages, panier, tunnel de commande, paiement Mepaye, administration, liaison
+CJ Dropshipping (prix, stock, délais, transmission automatique des commandes et suivi des colis).
 
 ## Lancer le site
 
@@ -37,6 +36,52 @@ Page **http://localhost:3000/admin/fournisseur** (administration, protégée par
 
 Les références CJ (produit, variante à prise européenne, entrepôt) sont dans `src/lib/products.ts`, champ `cj`.
 
+## Paiement (Mepaye)
+
+1. Le client clique sur « Payer » : la commande est enregistrée « En attente de paiement » et le client part sur la page de paiement sécurisée de Mepaye.
+2. Mepaye prévient le site par un webhook signé (`/api/payments/notify`). Le site vérifie la signature, le montant et la devise, puis la commande passe « Payée ». Elle part alors toute seule chez CJ (voir plus bas). Mepaye n'a pas d'API pour lire l'état d'un paiement : seul le webhook fait foi.
+3. De retour sur le site, le client voit sa confirmation dès que le paiement est reçu. S'il n'a pas payé, il peut reprendre le paiement. Le panier n'est vidé qu'une fois le paiement confirmé.
+
+Réglages dans `web/.env.local` :
+
+```
+MEPAYE_API_KEY=mp_live_...       # mp_live_ : paiements réels ; mp_test_ : paiements de test
+MEPAYE_WEBHOOK_SECRET=whsec_...  # secret du webhook, valeur complète (préfixe whsec_ compris)
+```
+
+Sans `MEPAYE_API_KEY`, le paiement reste simulé : la commande est marquée payée d'office.
+
+Dans l'espace Mepaye :
+- La boutique doit être réglée en **euros**. Sinon, Mepaye refuse le paiement et le client voit « Paiement momentanément indisponible ».
+- **Clé** : page https://mepaye.com/app/developpeur (absente du menu), environnement Live. Créer une clé propre à ce site, car le lien de retour est réglé par clé :
+  - nom affiché = la marque ;
+  - « Lien de ton site » = `https://<adresse du site>/commande/confirmation`. Ce lien doit avoir exactement la même adresse (même origine) que le site, sinon le client ne retrouve pas sa commande au retour (elle est gardée dans son navigateur).
+- **Webhook** : Développeur › Webhooks. Adresse : `https://<projet>.vercel.app/api/payments/notify`. Événements : « Paiement réussi (API) » et « Paiement échoué (API) ». Le secret affiché va dans `MEPAYE_WEBHOOK_SECRET` (Vercel).
+- **Attention :** un webhook Mepaye ne se modifie pas, et le recréer change son secret. On garde donc l'adresse `vercel.app`, même après l'ajout d'un nom de domaine. Il ne faut **jamais rediriger** le domaine `vercel.app` dans Vercel : Mepaye ne suit pas les redirections.
+
+Sécurité :
+- Une clé de test n'ouvre jamais la vente réelle : un paiement de test ne déclenche jamais de vraie commande CJ.
+- Un événement de test est ignoré avec une clé réelle, et inversement.
+- Un webhook rejoué n'a aucun effet.
+- Un montant différent de la commande, ou un deuxième paiement pour une commande déjà payée, est signalé dans l'historique de la commande, sans la valider.
+- Les remboursements se font depuis l'espace Mepaye : l'API ne permet pas de rembourser.
+
+### Vérification sans risque, une fois en ligne
+
+```bash
+MEPAYE_WEBHOOK_SECRET=whsec_... node scripts/verifier-webhook.mjs https://<projet>.vercel.app
+```
+
+- Une notification non signée doit recevoir **400**.
+- Une notification signée, pour un paiement inexistant, doit recevoir **200 `{"received":true}`**, sans toucher aucune commande.
+
+## Mise en ligne (Vercel)
+
+1. Projet Vercel relié au dépôt GitHub, avec **Root Directory = `web`**.
+2. Base de données : onglet Storage › Turso. Ses variables (`TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`) sont reconnues telles quelles. Les migrations s'appliquent toutes seules au premier accès.
+3. Variables d'environnement (Settings › Environment Variables) : celles de `.env.local`, avec `CJ_ORDER_MODE=live`, la clé `MEPAYE_API_KEY=mp_live_…` et `MEPAYE_WEBHOOK_SECRET`. Ajouter `NEXT_PUBLIC_SITE_URL=https://<projet>.vercel.app`.
+4. `vercel.json` lance `/api/cj/sync` une fois par jour : c'est le maximum du plan gratuit. Pour un suivi toutes les 15 minutes, il faut un service de tâches planifiées externe ou le plan Pro.
+
 ## Transmission automatique des commandes à CJ
 
 Aucune intervention manuelle : chaque commande payée part toute seule chez CJ.
@@ -56,7 +101,7 @@ CJ_IOSS_TYPE=3          # facultatif : TVA à l'import hors UE, 3 = IOSS de CJ (
 ```
 
 - **sandbox** (par défaut) : commandes de test chez CJ, sans envoi ni débit. Les numéros sont préfixés `TEST-`.
-- **live** : vraies commandes. Ce mode reste bloqué tant que le paiement client est simulé (`paymentMode: "simulation"`). Une commande au paiement simulé ne devient jamais une vraie commande CJ.
+- **live** : vraies commandes. Ce mode reste bloqué tant que les paiements ne sont pas réels (clé Mepaye `mp_live_`). Une commande au paiement simulé ou de test ne devient jamais une vraie commande CJ.
 - Avant de passer en **live** : recharger le solde CJ (Wallet), qui est affiché sur la page Fournisseur. Une commande que CJ n'a pas pu payer est signalée en rouge. Une fois payée dans l'espace CJ, la suite reprend toute seule.
 
 Tâche planifiée, à appeler toutes les 15 à 30 minutes :
@@ -69,7 +114,7 @@ Sur Vercel, une tâche « cron » envoie cet en-tête toute seule. La consultati
 
 ## Commandes et administration
 
-Les commandes sont enregistrées dans une base SQLite locale (`web/data/boutique.db`, créée automatiquement au premier lancement, jamais versionnée). Le serveur revérifie tout ce qui vient du navigateur : prix, stock, mode de livraison et champs du formulaire. Tant que l'agrégateur de paiement n'est pas branché (`paymentMode: "simulation"` dans `src/lib/site.ts`), la commande est marquée payée d'office, puis transmise à CJ en mode test.
+Les commandes sont enregistrées dans une base SQLite locale (`web/data/boutique.db`, créée automatiquement au premier lancement, jamais versionnée). Le serveur revérifie tout ce qui vient du navigateur : prix, stock, mode de livraison et champs du formulaire.
 
 Administration : **http://localhost:3000/admin**. Le mot de passe se trouve dans `web/.env.local`, variable `ADMIN_PASSWORD`, et tu peux le changer quand tu veux. Elle comprend :
 - la liste des commandes, avec filtres par statut et recherche ;
@@ -106,16 +151,17 @@ Dans `src/lib/site.ts`, `mockup: true` affiche les repères de maquette (« prix
 ## Pages
 
 - `/` accueil · `/robots` catalogue et comparatif · `/robots/o1`, `/robots/s2`, `/robots/q3` fiches produit
-- `/panier` · `/commande` · `/commande/confirmation` (paiement simulé)
+- `/panier` · `/commande` · `/commande/confirmation` (attend la confirmation du paiement)
 - `/suivi` suivi de commande
-- `/admin` administration (commandes, fournisseur) · `/api/cj/sync` tâche planifiée CJ
+- `/admin` administration (commandes, fournisseur) · `/api/cj/sync` tâche planifiée CJ · `/api/payments/notify` webhook de paiement
 - `/faq` · `/contact` · `/livraison-retours`
 - `/mentions-legales` · `/cgv` · `/confidentialite` (modèles à compléter)
 
 ## À confirmer avant la mise en ligne
 
 - Les prix de vente (provisoires) et les délais de livraison réels proposés par CJ.
-- Le solde CJ à recharger, puis `CJ_ORDER_MODE=live` une fois le vrai paiement branché.
+- Le solde CJ à recharger, puis `CJ_ORDER_MODE=live` une fois la clé Mepaye `mp_live_` en place.
+- Auprès de Mepaye : la vente d'objets physiques, les cartes françaises en euros, et le retour du client sur le site après paiement.
 - La TVA : CJ prélève une TVA d'import (IOSS) sur les envois de Chine, à articuler avec la TVA des ventes (comptable).
 - Les caractéristiques marquées « À confirmer » (S2 et O1 surtout) et le type de prise (prise européenne).
 - Le contenu des colis du S2 et du O1.
