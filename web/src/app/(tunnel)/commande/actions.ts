@@ -70,6 +70,11 @@ export async function placeOrder(request: CheckoutRequest): Promise<PlaceOrderRe
     return { ok: false, message: "Ce mode de livraison n'est plus disponible. Choisissez-en un autre." };
   }
 
+  if (paymentMode() === "unavailable") {
+    console.error("[commande] refusée : MEPAYE_API_KEY absente sur le site en ligne");
+    return { ok: false, message: PAYMENT_UNAVAILABLE };
+  }
+
   const subtotal = lines.reduce((sum, line) => sum + line.product.price * line.qty, 0);
   const total = subtotal + shipping.price;
 
@@ -147,7 +152,7 @@ export async function resumePayment(
   const order = await findOrderForCustomer(number, email);
   if (!order) return { ok: false, message: "Commande introuvable." };
   if (order.status !== "pending_payment") return { ok: false, message: "Cette commande n'attend plus de paiement." };
-  if (paymentMode() === "simulation") return { ok: false, message: PAYMENT_UNAVAILABLE };
+  if (paymentMode() !== "mepaye") return { ok: false, message: PAYMENT_UNAVAILABLE };
   try {
     // Nouvelle clé : le paiement précédent a pu échouer définitivement.
     return { ok: true, paymentUrl: await startMepayePayment(order, `${order.number}-${randomUUID()}`) };

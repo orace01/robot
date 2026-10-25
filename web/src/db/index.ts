@@ -10,13 +10,19 @@ import * as schema from "./schema";
 const DEFAULT_URL = "file:data/boutique.db";
 
 function createDatabase() {
-  // Base Turso créée depuis Vercel (Storage) : ses variables s'appellent TURSO_….
-  const url = process.env.DATABASE_URL ?? process.env.TURSO_DATABASE_URL ?? DEFAULT_URL;
+  // Base Turso reliée depuis Vercel (Storage, préfixe « DATABASE ») : DATABASE_TURSO_….
+  const url =
+    process.env.DATABASE_URL ??
+    process.env.DATABASE_TURSO_DATABASE_URL ??
+    process.env.TURSO_DATABASE_URL ??
+    DEFAULT_URL;
   if (url.startsWith("file:")) {
     // Le dossier de la base locale doit exister avant la première connexion.
     mkdirSync(path.dirname(path.resolve(url.slice("file:".length))), { recursive: true });
   }
-  const client = createClient({ url, authToken: process.env.DATABASE_AUTH_TOKEN ?? process.env.TURSO_AUTH_TOKEN });
+  const authToken =
+    process.env.DATABASE_AUTH_TOKEN ?? process.env.DATABASE_TURSO_AUTH_TOKEN ?? process.env.TURSO_AUTH_TOKEN;
+  const client = createClient({ url, authToken });
   return drizzle(client, { schema });
 }
 

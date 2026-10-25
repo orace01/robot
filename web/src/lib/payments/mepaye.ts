@@ -13,17 +13,19 @@ import { createHmac, timingSafeEqual } from "node:crypto";
  * - MEPAYE_API_KEY : clé « mp_test_… » (paiements de test) ou « mp_live_… » (réels) ;
  * - MEPAYE_WEBHOOK_SECRET : secret du webhook (« whsec_… », valeur complète), affiché à sa
  *   création dans l'espace Mepaye (Développeur › Webhooks).
- * Sans clé, le paiement reste simulé.
+ * Sans clé, le paiement est simulé en local ; sur le site en ligne, les commandes sont refusées.
  */
 
 const API_URL = process.env.MEPAYE_API_URL ?? "https://mepaye.com/api/v1";
 /** Devise de la boutique Mepaye : elle doit être réglée en euros. */
 export const MEPAYE_CURRENCY = "EUR";
 
-export type PaymentMode = "simulation" | "mepaye";
+export type PaymentMode = "simulation" | "mepaye" | "unavailable";
 
 export function paymentMode(): PaymentMode {
-  return process.env.MEPAYE_API_KEY ? "mepaye" : "simulation";
+  if (process.env.MEPAYE_API_KEY) return "mepaye";
+  // Jamais de paiement simulé sur le site en ligne : de vrais visiteurs commanderaient sans payer.
+  return process.env.VERCEL_ENV === "production" ? "unavailable" : "simulation";
 }
 
 /** Paiements réels encaissés (clé « mp_live_ ») : seule condition pour passer de vraies commandes CJ. */

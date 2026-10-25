@@ -78,7 +78,7 @@ MEPAYE_WEBHOOK_SECRET=whsec_... node scripts/verifier-webhook.mjs https://<proje
 ## Mise en ligne (Vercel)
 
 1. Projet Vercel relié au dépôt GitHub, avec **Root Directory = `web`**.
-2. Base de données : onglet Storage › Turso. Ses variables (`TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`) sont reconnues telles quelles. Les migrations s'appliquent toutes seules au premier accès.
+2. Base de données : onglet Storage › Turso, reliée au projet avec le préfixe `DATABASE`. Ses variables (`DATABASE_TURSO_DATABASE_URL`, `DATABASE_TURSO_AUTH_TOKEN`) sont reconnues telles quelles. Les migrations s'appliquent toutes seules au premier accès.
 3. Variables d'environnement (Settings › Environment Variables) : celles de `.env.local`, avec `CJ_ORDER_MODE=live`, la clé `MEPAYE_API_KEY=mp_live_…` et `MEPAYE_WEBHOOK_SECRET`. Ajouter `NEXT_PUBLIC_SITE_URL=https://<projet>.vercel.app`.
 4. `vercel.json` lance `/api/cj/sync` une fois par jour : c'est le maximum du plan gratuit. Pour un suivi toutes les 15 minutes, il faut un service de tâches planifiées externe ou le plan Pro.
 

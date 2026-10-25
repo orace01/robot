@@ -57,19 +57,28 @@ async function send<T>(path: string, init: { method: string; token?: string; bod
  * Jeton d'accès, valable 180 jours. CJ limite fortement sa demande : on le garde en
  * cache plusieurs jours. En production, le fournir via CJ_ACCESS_TOKEN évite de le
  * redemander à chaque démarrage du serveur.
+ *
+ * Ne lève jamais d'erreur : une erreur levée dans une fonction en cache fait échouer la
+ * construction du site (next build), même si l'appelant la rattrape. En cas d'échec,
+ * on renvoie null et on réessaie quelques minutes plus tard.
  */
-async function requestAccessToken(): Promise<string> {
+async function requestAccessToken(apiKey: string): Promise<string | null> {
   "use cache";
-  cacheLife("days");
-
-  const apiKey = process.env.CJ_API_KEY;
-  if (!apiKey) throw new CjError("CJ_API_KEY n'est pas définie (fichier web/.env.local).");
-  const json = await send<{ accessToken?: string }>("/authentication/getAccessToken", {
-    method: "POST",
-    body: { apiKey },
-  });
-  if (!json.data?.accessToken) throw new CjError(`Authentification CJ refusée : ${json.message}`);
-  return json.data.accessToken;
+  try {
+    const json = await send<{ accessToken?: string }>("/authentication/getAccessToken", {
+      method: "POST",
+      body: { apiKey },
+    });
+    if (json.data?.accessToken) {
+      cacheLife("days");
+      return json.data.accessToken;
+    }
+    console.error(`[CJ] authentification refusée : ${json.message}`);
+  } catch (error) {
+    console.error("[CJ] authentification impossible :", error instanceof Error ? error.message : error);
+  }
+  cacheLife("minutes");
+  return null;
 }
 
 /**
@@ -78,7 +87,9 @@ async function requestAccessToken(): Promise<string> {
  * après l'autre (Next.js interdit de partager une file d'attente entre fonctions en cache).
  */
 export async function openCjSession(): Promise<CjRequest> {
-  const token = process.env.CJ_ACCESS_TOKEN || (await requestAccessToken());
+  const apiKey = process.env.CJ_API_KEY;
+  const token = process.env.CJ_ACCESS_TOKEN || (apiKey ? await requestAccessToken(apiKey) : null);
+  if (!token) throw new CjError("Connexion CJ impossible : CJ_ACCESS_TOKEN et CJ_API_KEY absentes ou refusées.");
   let lastCallAt = Date.now();
 
   return async function request<T>(method: "GET" | "POST", path: string, params: Record<string, unknown> = {}) {
