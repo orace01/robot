@@ -185,8 +185,8 @@ footer { color: var(--muted); font-size: 13px; display: flex; justify-content: s
       <p class="eyebrow">Boutique de robots laveurs de vitres</p>
       <h2>Le point de reprise du projet, mis à jour à chaque message.</h2>
       <div class="spec-row">
-        <div class="spec"><span class="eyebrow">Entrées</span><b>13</b></div>
-        <div class="spec"><span class="eyebrow">Commits</span><b>11</b></div>
+        <div class="spec"><span class="eyebrow">Entrées</span><b>14</b></div>
+        <div class="spec"><span class="eyebrow">Commits</span><b>13</b></div>
         <div class="spec"><span class="eyebrow">Robots</span><b>3</b></div>
       </div>
     </div>
@@ -198,6 +198,21 @@ footer { color: var(--muted); font-size: 13px; display: flex; justify-content: s
       <span class="eyebrow">Du plus récent au plus ancien</span>
     </div>
     <div class="log">
+      <article class="entry">
+        <div class="entry-meta"><span class="entry-num">14</span><span class="eyebrow">31 oct. – 1er nov. · Vidéos · GitHub</span></div>
+        <div>
+          <h3>Hero Q3 en 4 angles validé, 16:9 par Seedance, tout poussé</h3>
+          <p class="quote">« La vidéo de maintenant est parfaite, fais sa version 16:9. » · « Plus jamais : étendre, c'est de l'outpainting, pas du flou. »</p>
+          <ul>
+            <li>Hero Q3 en 4 angles, 9:16, 8,7 s, <strong>validé</strong> : plan large (début de V1), plan rapproché, gros plan, détail sur la brume (capture à 0:03 de V1). Veo 3.1 Fast, 20 crédits par plan. <code>docs/marque/flow-rendus/hero-q3-4-angles-9x16.mp4</code>.</li>
+            <li>Version 16:9 : les côtés flous ont été <strong>refusés</strong> (« étendre » = outpainting, consigne mise en mémoire). Flow ne fait pas d'outpainting vidéo : Veo et Omni régénèrent (test Omni à 12 crédits, robot et trajet différents).</li>
+            <li>Méthode retenue : <strong>Seedance 2.0 Mini dans CapCut</strong>, comme pour Lumikréa. Prompt maître retrouvé et adapté, pack prêt dans <code>docs/marque/seedance-hero-q3/</code> (4 références de mouvement, premières et dernières images, <code>PROMPT-seedance.md</code>), aussi dans <code>vibe-brain/prompts/</code>.</li>
+            <li>Règle <strong>R-011</strong> ajoutée à vibe-brain : tous les boutons des sites viennent de la bibliothèque Uiverse (notice MIT gardée), exemple <code>templates/composants/bouton-base-uiverse.html</code>.</li>
+            <li>vibe-brain poussé par un agent Sonnet sur <code>github.com/Fabrice210/vibe-brain</code> (privé, 1 351 fichiers, aucun secret). Branche <code>clair-with-branding</code> poussée sur <code>github.com/orace01/robot</code> avec les docs et les médias (commit <code>b5f2bca</code>).</li>
+            <li>Prompt de reprise pour la session cloud : <code>docs/prompt-reprise-cloud.md</code>.</li>
+          </ul>
+        </div>
+      </article>
       <article class="entry">
         <div class="entry-meta"><span class="entry-num">13</span><span class="eyebrow">31 oct. · Vidéos Google Flow</span></div>
         <div>
@@ -378,7 +393,8 @@ footer { color: var(--muted); font-size: 13px; display: flex; justify-content: s
         <dt>Hébergement</dt><dd>Vercel, dossier racine <code>web</code>, base Turso.</dd>
         <dt>Marque</dt><dd><strong>Klair</strong> (anciennement Clair). Typo : After Display (titres, licence à acheter) + Satoshi ; Cabinet Grotesk en attendant.</dd>
         <dt>Accueil</dt><dd>Hero fluide → gamme (scène au survol) → confiance → vue éclatée du Q3 → anatomie S2 → comment ça marche → cas d'usage → zoom Q3 → avis → FAQ.</dd>
-        <dt>Branche</dt><dd><code>clair-with-branding</code>, à jour avec <code>main</code>, non poussée. Dernier commit : <code>bbe3f5d</code>.</dd>
+        <dt>Branche</dt><dd><code>clair-with-branding</code>, à jour avec <code>main</code>, <strong>poussée</strong> sur <code>github.com/orace01/robot</code>. Dernier commit : <code>b5f2bca</code>.</dd>
+        <dt>vibe-brain</dt><dd>Dépôt privé <code>github.com/Fabrice210/vibe-brain</code>, règles R-001 à R-011.</dd>
       </dl>
     </section>
 
@@ -452,9 +468,9 @@ footer { color: var(--muted); font-size: 13px; display: flex; justify-content: s
 
   <section class="deep" aria-labelledby="suite">
     <p class="eyebrow">Prochaine étape</p>
-    <h2 id="suite">Séquence de 4 angles pour le hero du Q3</h2>
+    <h2 id="suite">Version 16:9 du hero Q3 avec Seedance</h2>
     <ol>
-      <li>Hero Q3 en 4 angles (9:16) : angle 1 = début de V1 ; angles 2 à 4 générés plan par plan dans Flow, puis montés.</li>
+      <li>Élargir en 16:9 les premières et dernières images des 4 plans (Flow, modification d'image au format 16:9), puis lancer Seedance plan par plan avec <code>PROMPT-seedance.md</code>, retirer le filigrane, vérifier le robot, monter.</li>
       <li>Même méthode pour le S2 et le O1, puis la vue éclatée et les plans multi-angles ; versions 16:9 ensuite.</li>
       <li>Branchement des vidéos dans le hero (mobile d'abord) et dans la section « Tout tient en 6,8 cm ».</li>
       <li>Tes captures de boutons, puis refonte des boutons et CTA.</li>
