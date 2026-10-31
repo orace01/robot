@@ -89,7 +89,7 @@ export const faqGroups: FaqGroup[] = [
     items: [
       {
         q: "Puis-je changer d'avis ?",
-        a: `Oui : vous disposez de ${site.returnDays} jours à compter de la réception pour vous rétracter, sans avoir à vous justifier. Nous vous remboursons au plus tard ${site.returnDays} jours après votre demande, une fois le produit retourné.`,
+        a: `Oui : vous disposez de ${site.returnDays} jours à compter de la réception pour vous rétracter, sans avoir à vous justifier. Les frais de retour sont à votre charge. Nous vous remboursons la commande, livraison standard comprise, au plus tard ${site.returnDays} jours après votre demande, une fois le produit retourné.`,
       },
       {
         q: "Quelle est la garantie ?",
@@ -106,7 +106,7 @@ export const faqGroups: FaqGroup[] = [
     items: [
       {
         q: "Le paiement est-il sécurisé ?",
-        a: "Oui. Le paiement est traité par un prestataire spécialisé, avec authentification 3D Secure. Nous n'avons jamais accès à vos données bancaires.",
+        a: "Oui. Vous payez par carte bancaire sur la page sécurisée de notre prestataire de paiement : vos données bancaires ne transitent jamais par notre site et nous n'y avons pas accès.",
       },
       {
         q: "Les prix sont-ils TTC ?",

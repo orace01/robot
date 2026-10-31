@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ContentPage, Todo } from "@/components/ui/content-page";
+import { SellerDetails, UpdatedAt } from "@/components/legal/legal-info";
+import { ContentPage } from "@/components/ui/content-page";
+import { hostingProvider, siteHost } from "@/lib/legal";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -9,42 +11,29 @@ export const metadata: Metadata = {
 
 export default function LegalNoticePage() {
   return (
-    <ContentPage eyebrow="Informations" title="Mentions légales" draft>
+    <ContentPage eyebrow="Informations" title="Mentions légales">
+      <UpdatedAt />
+
       <h2>Éditeur du site</h2>
       <p>
-        Le site {site.name} est édité par <Todo>raison sociale</Todo>, <Todo>forme juridique</Todo> au capital de{" "}
-        <Todo>montant</Todo> €, dont le siège social est situé <Todo>adresse</Todo>, immatriculée au registre du
-        commerce et des sociétés de <Todo>ville</Todo> sous le numéro <Todo>SIREN / SIRET</Todo>.
+        Le site {siteHost} présente et vend les robots laveurs de vitres de la marque {site.name}.
       </p>
-      <ul>
-        <li>
-          Numéro de TVA intracommunautaire : <Todo>numéro</Todo>
-        </li>
-        <li>
-          Directeur ou directrice de la publication : <Todo>nom</Todo>
-        </li>
-        <li>Contact : {site.email}</li>
-        <li>
-          Téléphone : <Todo>numéro</Todo>
-        </li>
-      </ul>
+      <SellerDetails withPublisher />
 
       <h2>Hébergement</h2>
-      <p>
-        Le site est hébergé par <Todo>nom de l&apos;hébergeur</Todo>, <Todo>adresse</Todo>,{" "}
-        <Todo>téléphone</Todo>.
-      </p>
+      <p>Le site est hébergé par {hostingProvider}.</p>
 
       <h2>Propriété intellectuelle</h2>
       <p>
-        Les textes, la charte graphique et le logo du site sont la propriété de l&apos;éditeur. Les visuels des
-        produits sont fournis par nos fournisseurs et utilisés avec leur autorisation. Toute reproduction sans
-        accord préalable est interdite.
+        Les textes, visuels, logos et éléments graphiques du site sont protégés par le droit de la propriété
+        intellectuelle. Toute reproduction, même partielle, sans autorisation écrite préalable est interdite.
       </p>
 
       <h2>Données personnelles</h2>
       <p>
-        Le traitement de vos données est décrit dans notre <Link href="/confidentialite">politique de confidentialité</Link>.
+        Le traitement de vos données est décrit dans notre{" "}
+        <Link href="/confidentialite">politique de confidentialité</Link>. Le site n&apos;utilise aucun cookie
+        publicitaire ni outil de mesure d&apos;audience.
       </p>
     </ContentPage>
   );

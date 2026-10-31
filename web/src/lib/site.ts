@@ -3,24 +3,24 @@
  * Le nom est provisoire : le changer ici suffit à le mettre à jour partout.
  */
 export const site = {
-  name: "Clair",
+  name: "Klair",
   /** Adresse publique du site (à définir avec le nom de domaine). */
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   description:
     "Robots laveurs de vitres : pulvérisation automatique, aspiration régulée, détection des bords. Livraison offerte en France.",
-  email: "contact@exemple.fr",
-  supportHours: "du lundi au vendredi, de 9 h à 18 h",
-  supportDelay: "sous 24 h ouvrées",
+  /** Adresse du service client (contact@<domaine>) : à renseigner une fois le domaine acheté. */
+  email: null as string | null,
   /** Délai légal de rétractation (jours). Peut être allongé, jamais réduit. */
   returnDays: 14,
   /** Garantie légale de conformité (années). */
   warrantyYears: 2,
   vatRate: 0.2,
   /**
-   * Affiche les repères de maquette (« prix provisoire », « avis d'exemple »…).
-   * À passer à false avant la mise en ligne.
+   * Repères de maquette (« prix provisoire », « avis d'exemple », valeurs « à confirmer »…) :
+   * visibles en local et dans les aperçus, jamais sur le site en ligne, où les informations
+   * non vérifiées sont retirées.
    */
-  mockup: true,
+  mockup: process.env.NEXT_PUBLIC_VERCEL_ENV !== "production",
 } as const;
 
 /**
@@ -70,7 +70,7 @@ export const footerNav = [
     links: [
       { href: "/mentions-legales", label: "Mentions légales" },
       { href: "/cgv", label: "Conditions générales de vente" },
-      { href: "/confidentialite", label: "Confidentialité et cookies" },
+      { href: "/confidentialite", label: "Confidentialité" },
     ],
   },
 ];

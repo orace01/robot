@@ -228,12 +228,19 @@ async function OrderContent({ params }: { params: Params }) {
                   key={event.id}
                   className={cn(
                     "flex flex-wrap justify-between gap-x-4 rounded-[12px] px-3 py-2",
-                    event.type === "note" ? "bg-amber-50" : event.type === "supplier" ? "bg-accent-soft/50" : "bg-canvas",
+                    event.type === "note"
+                      ? "bg-amber-50"
+                      : event.type === "supplier"
+                        ? "bg-accent-soft/50"
+                        : event.type === "email"
+                          ? "bg-green-50"
+                          : "bg-canvas",
                   )}
                 >
                   <span>
                     {event.type === "note" && <span className="eyebrow mr-2 text-amber-800">Note</span>}
                     {event.type === "supplier" && <span className="eyebrow mr-2 text-accent-strong">CJ</span>}
+                    {event.type === "email" && <span className="eyebrow mr-2 text-green-800">E-mail</span>}
                     {event.message}
                     {!event.visibleToCustomer && event.type === "status" && (
                       <span className="ml-2 text-xs text-muted">(interne)</span>

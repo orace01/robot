@@ -42,3 +42,6 @@ next-env.d.ts
 
 # base de données locale
 /data/
+
+# Modèle des variables d'environnement, sans valeur secrète : versionné.
+!.env.example

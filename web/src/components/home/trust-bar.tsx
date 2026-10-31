@@ -6,7 +6,7 @@ const items = [
   { icon: Truck, value: "0 €", label: "Livraison suivie", note: "en France métropolitaine" },
   { icon: RotateCcw, value: `${site.returnDays} j`, label: "Pour changer d'avis", note: "à réception du colis" },
   { icon: ShieldCheck, value: `${site.warrantyYears} ans`, label: "Garantie légale", note: "de conformité" },
-  { icon: Lock, value: "3D Secure", label: "Paiement sécurisé", note: "données bancaires protégées" },
+  { icon: Lock, value: "Carte", label: "Paiement sécurisé", note: "jamais saisie sur notre site" },
 ];
 
 /** Bandeau de réassurance façon « ORBIT » : icône fine, gros chiffre, légende. */

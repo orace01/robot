@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, JetBrains_Mono } from "next/font/google";
-import { CookieBanner } from "@/components/layout/cookie-banner";
 import { Providers } from "@/components/providers";
 import { site } from "@/lib/site";
 import "./globals.css";
@@ -39,7 +38,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-dvh bg-canvas text-ink">
         <Providers>
           {children}
-          <CookieBanner />
         </Providers>
       </body>
     </html>

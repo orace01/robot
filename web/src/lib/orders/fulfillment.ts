@@ -17,6 +17,7 @@ import { fastestOption, getSupplierCatalog, orderableOptions, type SupplierCatal
 import { formatUsd } from "@/lib/format";
 import { TEST_PAYMENT_PROVIDERS } from "@/lib/payments/mepaye";
 import { getProduct } from "@/lib/products";
+import { sendShippingNotice } from "@/lib/notify/order-emails";
 import { addSupplierEvent, changeOrderStatus, setTracking } from "./service";
 
 /**
@@ -330,6 +331,7 @@ async function reconcileOrder(orderId: number): Promise<void> {
     const tracking = rows.map((row) => row.trackNumber).filter(Boolean).join(", ");
     if (tracking && rows.every((row) => row.trackNumber) && tracking !== order.trackingNumber) {
       await setTracking(order.number, carrierLabel(rows), tracking);
+      await sendShippingNotice(order.number);
       status = "shipped";
     }
   }

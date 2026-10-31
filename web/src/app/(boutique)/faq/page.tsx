@@ -6,7 +6,6 @@ import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { PageHeader } from "@/components/ui/page-header";
 import { faqGroups } from "@/lib/content";
-import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Questions fréquentes",
@@ -55,7 +54,7 @@ export default function FaqPage() {
             <div>
               <p className="text-xl font-semibold tracking-tight">Une autre question ?</p>
               <p className="mt-1 text-ink-soft">
-                Notre équipe vous répond {site.supportDelay}, {site.supportHours}.
+                Écrivez-nous : nous vous répondons par e-mail dans les meilleurs délais.
               </p>
             </div>
             <ButtonLink href="/contact" size="lg">

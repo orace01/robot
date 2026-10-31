@@ -77,7 +77,7 @@ export const orderEvents = sqliteTable(
     orderId: integer("order_id")
       .notNull()
       .references(() => orders.id, { onDelete: "cascade" }),
-    type: text("type", { enum: ["status", "tracking", "note", "supplier"] }).notNull(),
+    type: text("type", { enum: ["status", "tracking", "note", "supplier", "email"] }).notNull(),
     status: text("status", { enum: ORDER_STATUSES }),
     message: text("message").notNull(),
     /** Affiché au client sur la page de suivi. */

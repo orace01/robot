@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { CartItem } from "@/lib/cart";
-import { formatPrice, vatIncluded } from "@/lib/format";
+import { formatPrice } from "@/lib/format";
 import type { ShippingOffer } from "@/lib/delivery";
 import { site } from "@/lib/site";
 
@@ -48,10 +48,6 @@ export function OrderSummary({
         <div className="flex justify-between border-t border-line pt-3 text-lg font-semibold">
           <dt>Total TTC</dt>
           <dd className="tabular-nums">{formatPrice(total)}</dd>
-        </div>
-        <div className="flex justify-between text-xs text-muted">
-          <dt>Dont TVA (20 %)</dt>
-          <dd className="tabular-nums">{formatPrice(vatIncluded(total, site.vatRate))}</dd>
         </div>
       </dl>
     </div>

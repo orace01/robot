@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ContentPage, Todo } from "@/components/ui/content-page";
+import { ContactEmail, UpdatedAt } from "@/components/legal/legal-info";
+import { ContentPage } from "@/components/ui/content-page";
 import { getDeliveryMap } from "@/lib/cj/delivery";
 import { formatRange } from "@/lib/delivery";
 import { formatPrice } from "@/lib/format";
+import { seller } from "@/lib/legal";
 import { products } from "@/lib/products";
 import { shippingConfig, site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Livraison et retours",
-  description: "Délais et frais de livraison, droit de rétractation, garanties légales et retours.",
+  description: "Délais et frais de livraison, suivi du colis, droit de rétractation, garanties légales et retours.",
 };
 
 export default async function ShippingReturnsPage() {
@@ -19,12 +21,27 @@ export default async function ShippingReturnsPage() {
       eyebrow="Aide"
       title="Livraison et retours"
       intro="Délais, frais, suivi, retours et garanties : tout est expliqué ici, simplement."
-      draft
     >
+      <UpdatedAt />
+
       <h2>Livraison</h2>
+      <ul>
+        <li>
+          <strong>Offerte</strong> en livraison standard suivie, quel que soit le montant de la commande. Quand elle
+          est proposée pour les robots du panier, la livraison express coûte{" "}
+          {formatPrice(shippingConfig.expressPrice)}.
+        </li>
+        <li>
+          <strong>Où :</strong> en France métropolitaine (Corse comprise), à l&apos;adresse de votre choix.
+        </li>
+        <li>
+          <strong>Sans frais à la réception :</strong> les éventuels droits de douane et taxes d&apos;importation
+          sont à notre charge.
+        </li>
+      </ul>
       <p>
-        Nous livrons en France métropolitaine (Corse comprise), à l&apos;adresse indiquée lors de la commande. La
-        livraison standard suivie est offerte. Le délai dépend du robot et de son entrepôt d&apos;expédition :
+        Chaque robot est expédié depuis l&apos;entrepôt de notre partenaire logistique où il est stocké. Délais,
+        préparation comprise, à partir de la confirmation de votre commande :
       </p>
       <ul>
         {products.map((product) => {
@@ -35,60 +52,91 @@ export default async function ShippingReturnsPage() {
                 {site.name} {product.model}
               </strong>{" "}
               : expédié {delivery.shippedFrom}, livré en {formatRange(delivery.standard)}
-              {delivery.express &&
-                `, ou en ${formatRange(delivery.express)} en express (${formatPrice(shippingConfig.expressPrice)})`}
-              .
+              {delivery.express && `, ou en ${formatRange(delivery.express)} en express`}.
             </li>
           );
         })}
       </ul>
       <p>
-        Les délais courent à partir de la confirmation de votre commande et comprennent sa préparation. Dès
-        l&apos;expédition, vous recevez un e-mail avec votre numéro de suivi, également consultable sur la page{" "}
-        <Link href="/suivi">Suivre ma commande</Link>.
+        Une commande de robots stockés dans des entrepôts différents arrive en plusieurs colis. Sauf autre date
+        convenue, la livraison intervient au plus tard 30 jours après la commande.
       </p>
 
-      <h2>À la réception</h2>
+      <h2>Suivre votre colis</h2>
       <p>
-        Vérifiez l&apos;état du colis en présence du livreur. En cas de dommage, notez des réserves précises,
-        prenez des photos et <Link href="/contact">contactez-nous</Link> rapidement avec votre numéro de commande :
-        nous vous proposons un remplacement ou un remboursement.
+        Dès l&apos;expédition, vous recevez un numéro de suivi. Vous pouvez aussi suivre votre commande à tout moment
+        sur la <Link href="/suivi">page de suivi</Link>, avec votre numéro de commande et votre adresse e-mail.
       </p>
 
-      <h2>Changer d&apos;avis : {site.returnDays} jours</h2>
+      <h2>Colis abîmé ou produit défectueux</h2>
       <p>
-        Vous disposez de {site.returnDays} jours à compter de la réception de votre robot pour exercer votre droit
-        de rétractation, sans avoir à vous justifier.
-      </p>
-      <ol>
-        <li>
-          Informez-nous de votre décision via le <Link href="/contact">formulaire de contact</Link> ou par e-mail
-          ({site.email}), en précisant votre numéro de commande.
-        </li>
-        <li>
-          Renvoyez le produit complet, dans son emballage d&apos;origine si possible, à l&apos;adresse que nous vous
-          communiquons, au plus tard {site.returnDays} jours après nous avoir informés.
-        </li>
-        <li>
-          Nous vous remboursons la totalité des sommes versées, frais de livraison initiaux inclus (sur la base du
-          tarif standard), au plus tard {site.returnDays} jours après votre demande. Nous pouvons différer le
-          remboursement jusqu&apos;à la réception du produit ou d&apos;une preuve d&apos;expédition.
-        </li>
-      </ol>
-      <p>
-        Les frais de retour sont <Todo>à votre charge ou pris en charge par la boutique : à décider</Todo>.
+        Écrivez-nous à <ContactEmail /> avec votre numéro de commande et, si possible, une photo ou une vidéo du
+        problème. Nous vous proposons un remplacement ou un remboursement, sans frais pour vous. Vos garanties
+        légales sont détaillées dans les <Link href="/cgv">conditions générales de vente</Link>.
       </p>
 
-      <h2>Garanties</h2>
+      <h2>Vous changez d&apos;avis ?</h2>
       <p>
-        Tous nos robots bénéficient de la <strong>garantie légale de conformité</strong> pendant{" "}
-        {site.warrantyYears} ans à compter de la livraison, et de la <strong>garantie des vices cachés</strong>{" "}
-        (articles 1641 et suivants du Code civil). En cas de panne ou de défaut, contactez-nous : nous organisons la
-        réparation, le remplacement ou, à défaut, le remboursement.
+        Vous avez <strong>{site.returnDays} jours à compter de la réception</strong> de votre commande pour vous
+        rétracter, sans avoir à vous justifier.
       </p>
+      <ul>
+        <li>
+          Prévenez-nous par e-mail à <ContactEmail />, avec le formulaire ci-dessous ou un simple message indiquant
+          clairement votre décision.
+        </li>
+        <li>Nous vous indiquons par e-mail l&apos;adresse de retour.</li>
+        <li>
+          Renvoyez le produit dans les {site.returnDays} jours suivant votre message, dans son emballage
+          d&apos;origine si possible. Les frais de retour sont à votre charge.
+        </li>
+        <li>
+          Nous vous remboursons la totalité de la commande, livraison standard comprise, sur le moyen de paiement
+          utilisé, au plus tard {site.returnDays} jours après votre message. Nous pouvons attendre d&apos;avoir reçu
+          le produit, ou la preuve de son expédition, pour vous rembourser.
+        </li>
+      </ul>
+
+      <h2 id="formulaire">Formulaire de rétractation</h2>
       <p>
-        Le détail des garanties figure dans nos <Link href="/cgv">conditions générales de vente</Link>.
+        À compléter et à renvoyer par e-mail à <ContactEmail />, uniquement si vous souhaitez vous rétracter de votre
+        commande.
       </p>
+      <blockquote>
+        <p>
+          À l&apos;attention de {site.name}
+          {seller.name && (
+            <>
+              <br />
+              {seller.name}
+            </>
+          )}
+          {seller.address && (
+            <>
+              <br />
+              {seller.address}
+            </>
+          )}
+          <br />
+          <ContactEmail />
+        </p>
+        <p>
+          Je vous notifie par la présente ma rétractation du contrat portant sur la vente du bien ci-dessous :
+        </p>
+        <p>
+          Numéro de commande :
+          <br />
+          Commandé le : … / reçu le : …
+          <br />
+          Nom du consommateur :
+          <br />
+          Adresse du consommateur :
+          <br />
+          Signature du consommateur (uniquement en cas d&apos;envoi du formulaire sur papier) :
+          <br />
+          Date :
+        </p>
+      </blockquote>
     </ContentPage>
   );
 }

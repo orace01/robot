@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { CreditCard, Lock, RotateCcw, Truck } from "lucide-react";
-import { NewsletterForm } from "@/components/forms/newsletter-form";
-import { ManageCookiesButton } from "@/components/layout/manage-cookies-button";
 import { Container } from "@/components/ui/container";
 import { Logo } from "@/components/ui/logo";
 import { footerNav, site } from "@/lib/site";
@@ -23,10 +21,6 @@ export function Footer() {
               <p className="mt-5 max-w-sm text-white/70">
                 Des robots laveurs de vitres sélectionnés pour leur efficacité, livrés chez vous en France.
               </p>
-              <p className="eyebrow mt-10 text-white/60">Conseils et offres, une fois par mois</p>
-              <div className="mt-3">
-                <NewsletterForm />
-              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-7">
@@ -41,11 +35,6 @@ export function Footer() {
                         </Link>
                       </li>
                     ))}
-                    {group.title === "Informations" && (
-                      <li>
-                        <ManageCookiesButton className="text-left text-white/85 transition hover:text-white" />
-                      </li>
-                    )}
                   </ul>
                 </div>
               ))}

@@ -81,6 +81,26 @@ MEPAYE_WEBHOOK_SECRET=whsec_... node scripts/verifier-webhook.mjs https://<proje
 2. Base de données : onglet Storage › Turso, reliée au projet avec le préfixe `DATABASE`. Ses variables (`DATABASE_TURSO_DATABASE_URL`, `DATABASE_TURSO_AUTH_TOKEN`) sont reconnues telles quelles. Les migrations s'appliquent toutes seules au premier accès.
 3. Variables d'environnement (Settings › Environment Variables) : celles de `.env.local`, avec `CJ_ORDER_MODE=live`, la clé `MEPAYE_API_KEY=mp_live_…` et `MEPAYE_WEBHOOK_SECRET`. Ajouter `NEXT_PUBLIC_SITE_URL=https://<projet>.vercel.app`.
 4. `vercel.json` lance `/api/cj/sync` une fois par jour : c'est le maximum du plan gratuit. Pour un suivi toutes les 15 minutes, il faut un service de tâches planifiées externe ou le plan Pro.
+5. Toutes les variables sont décrites, sans valeur, dans `.env.example`.
+
+### Verrou de vente
+
+Sur le site en ligne, les commandes restent fermées tant qu'il manque une pièce indispensable :
+- la clé Mepaye `mp_live_` ;
+- l'adresse e-mail du service client (`site.email`) ;
+- la base de données ;
+- l'accès CJ.
+
+`GET /api/shop` répond `{"saleOpen": true}` ou donne la raison de la fermeture (`closedReason`). En local, la vente reste ouverte en paiement simulé.
+
+## E-mails et formulaire de contact
+
+Les e-mails partent par le SMTP de la boîte LWS `contact@<domaine>` (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`) :
+- **confirmation de commande**, une seule fois, dès que le paiement est reçu : récapitulatif, adresse, délai, rappel des 14 jours et liens vers le suivi, les retours et les CGV ;
+- **avis d'expédition**, avec le ou les numéros de suivi, quand CJ expédie (ou quand le suivi est saisi dans l'administration) ;
+- **messages du formulaire de contact**, envoyés à la boîte du service client, avec l'adresse du client en « répondre à ».
+
+Chaque envoi, réussi ou non, est noté dans l'historique de la commande (repère « E-mail »). Sans réglage SMTP, rien ne part et le formulaire de contact se dit indisponible. En local, `EMAIL_OUTBOX_DIR=data/outbox` écrit les e-mails en fichiers `.eml` au lieu de les envoyer.
 
 ## Transmission automatique des commandes à CJ
 
@@ -133,7 +153,7 @@ Les statuts avancent tout seuls avec CJ, et restent modifiables à la main. Une 
 Base de données :
 - `npm run db:studio` : explorer la base dans le navigateur ;
 - `npm run db:generate` : créer une migration après une modification de `src/db/schema.ts`. Les migrations s'appliquent toutes seules au démarrage.
-- En production : base libSQL hébergée (Turso), via `DATABASE_URL` et `DATABASE_AUTH_TOKEN`.
+- En production : base libSQL hébergée (Turso), via les variables de l'intégration Vercel (voir « Mise en ligne »).
 
 ## Où modifier quoi
 
@@ -143,28 +163,32 @@ Base de données :
 | Les tarifs de livraison                        | `src/lib/site.ts`        |
 | Les robots : prix, textes, caractéristiques   | `src/lib/products.ts`    |
 | La FAQ, les avis d'exemple                     | `src/lib/content.ts`     |
+| L'identité du vendeur, l'hébergeur             | `src/lib/legal.ts`       |
 | Les couleurs et les polices                    | `src/app/globals.css`    |
 
-Dans `src/lib/site.ts`, `mockup: true` affiche les repères de maquette (« prix provisoire »,
-« avis d'exemple », référence CJ…). À passer à `false` avant la mise en ligne.
+Les repères de maquette (« prix provisoire », avis d'exemple, valeurs « à confirmer », référence CJ…)
+s'affichent en local et dans les aperçus Vercel, jamais sur le site en ligne. Là-bas, les avis d'exemple et
+les caractéristiques non confirmées sont retirés (« Non précisé » dans le comparatif).
+
+Pages légales : version sans entreprise enregistrée, inspirée de lumikrea.store. Chaque information du
+vendeur laissée à `null` dans `src/lib/legal.ts` retire sa ligne ; elle apparaît dès qu'elle est renseignée.
 
 ## Pages
 
 - `/` accueil · `/robots` catalogue et comparatif · `/robots/o1`, `/robots/s2`, `/robots/q3` fiches produit
 - `/panier` · `/commande` · `/commande/confirmation` (attend la confirmation du paiement)
 - `/suivi` suivi de commande
-- `/admin` administration (commandes, fournisseur) · `/api/cj/sync` tâche planifiée CJ · `/api/payments/notify` webhook de paiement
+- `/admin` administration (commandes, fournisseur) · `/api/cj/sync` tâche planifiée CJ · `/api/payments/notify` webhook de paiement · `/api/shop` état de la vente
 - `/faq` · `/contact` · `/livraison-retours`
-- `/mentions-legales` · `/cgv` · `/confidentialite` (modèles à compléter)
+- `/mentions-legales` · `/cgv` · `/confidentialite`
 
 ## À confirmer avant la mise en ligne
 
 - Les prix de vente (provisoires) et les délais de livraison réels proposés par CJ.
 - Le solde CJ à recharger, puis `CJ_ORDER_MODE=live` une fois la clé Mepaye `mp_live_` en place.
 - Auprès de Mepaye : la vente d'objets physiques, les cartes françaises en euros, et le retour du client sur le site après paiement.
-- La TVA : CJ prélève une TVA d'import (IOSS) sur les envois de Chine, à articuler avec la TVA des ventes (comptable).
-- Les caractéristiques marquées « À confirmer » (S2 et O1 surtout) et le type de prise (prise européenne).
+- Le domaine et la boîte `contact@<domaine>` : `site.email` dans `src/lib/site.ts`, variables `SMTP_*` dans Vercel.
+- Les caractéristiques « À confirmer » (S2 et O1 surtout) et le type de prise (prise européenne) : retirées du site en ligne tant qu'elles ne sont pas confirmées.
 - Le contenu des colis du S2 et du O1.
 - Des photos de meilleure qualité pour le O1.
-- Les informations légales de l'entreprise dans les pages légales.
-- Les avis : ceux affichés sont des exemples, à remplacer par de vrais avis clients.
+- De vrais avis clients, pour remplacer les avis d'exemple (absents du site en ligne).

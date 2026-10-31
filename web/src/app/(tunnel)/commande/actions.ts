@@ -14,12 +14,14 @@ import {
   type CheckoutRequest,
   type CustomerFields,
 } from "@/lib/orders/checkout";
+import { sendOrderConfirmation } from "@/lib/notify/order-emails";
 import { forwardOrderToSupplier } from "@/lib/orders/fulfillment";
 import { addOrderNote, changeOrderStatus, createOrder, findOrderForCustomer, markOrderPaid } from "@/lib/orders/service";
 import type { OrderStatus } from "@/lib/orders/status";
 import { paymentMode } from "@/lib/payments/mepaye";
 import { startMepayePayment } from "@/lib/payments/orders";
 import { getProduct, type Product } from "@/lib/products";
+import { saleStatus } from "@/lib/sale-status";
 import { site } from "@/lib/site";
 
 export type PlaceOrderResult =
@@ -70,9 +72,11 @@ export async function placeOrder(request: CheckoutRequest): Promise<PlaceOrderRe
     return { ok: false, message: "Ce mode de livraison n'est plus disponible. Choisissez-en un autre." };
   }
 
-  if (paymentMode() === "unavailable") {
-    console.error("[commande] refusée : MEPAYE_API_KEY absente sur le site en ligne");
-    return { ok: false, message: PAYMENT_UNAVAILABLE };
+  // Verrou de vente : sur le site en ligne, rien ne se vend tant qu'il manque une pièce indispensable.
+  const sale = saleStatus();
+  if (!sale.open) {
+    console.error(`[commande] refusée, vente fermée : ${sale.reasons.join(" ; ")}`);
+    return { ok: false, message: "La boutique ouvre très bientôt : les commandes ne sont pas encore possibles." };
   }
 
   const subtotal = lines.reduce((sum, line) => sum + line.product.price * line.qty, 0);
@@ -116,8 +120,11 @@ export async function placeOrder(request: CheckoutRequest): Promise<PlaceOrderRe
   // Sans agrégateur configuré, la commande est marquée payée d'office.
   if (paymentMode() === "simulation") {
     await markOrderPaid(order.id, { provider: "simulation", reference: order.number });
-    // Transmission à CJ une fois la réponse envoyée : le client n'attend pas.
-    after(() => forwardOrderToSupplier(order.id));
+    // Confirmation et transmission à CJ une fois la réponse envoyée : le client n'attend pas.
+    after(async () => {
+      await sendOrderConfirmation(order.number);
+      await forwardOrderToSupplier(order.id);
+    });
     return { ok: true, order: placed };
   }
 

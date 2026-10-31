@@ -6,6 +6,8 @@ import { exampleReviews } from "@/lib/content";
 import { site } from "@/lib/site";
 
 export function Reviews({ title = "Ils ont rangé l'escabeau." }: { title?: string }) {
+  // Avis d'exemple : jamais sur le site en ligne. À remplacer par de vrais avis clients.
+  if (!site.mockup) return null;
   return (
     <section className="py-24 lg:py-32">
       <Container>

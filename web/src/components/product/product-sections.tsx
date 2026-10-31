@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Image from "next/image";
 import { Check, Minus, PackageOpen } from "lucide-react";
 import { Reveal } from "@/components/motion/reveal";
@@ -151,7 +152,8 @@ export function SpecsAndBox({ product }: { product: Product }) {
           <Eyebrow>Fiche technique</Eyebrow>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight">Caractéristiques</h2>
           <dl className="mt-8 divide-y divide-line border-y border-line">
-            {product.specs.map((spec) => (
+            {/* Sur le site en ligne, une caractéristique non confirmée est retirée. */}
+            {product.specs.filter((spec) => spec.value !== null || site.mockup).map((spec) => (
               <div key={spec.label} className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-4 py-3.5 text-sm sm:text-base">
                 <dt className="text-muted">{spec.label}</dt>
                 <dd>{spec.value ?? <ToConfirm />}</dd>
@@ -175,8 +177,8 @@ export function SpecsAndBox({ product }: { product: Product }) {
             </ul>
           ) : (
             <p className="mt-6 text-white/60">
-              Le contenu détaillé du colis sera précisé prochainement.{" "}
-              <ToConfirm className="ml-1 border-white/30 text-white/60" />
+              Vous souhaitez le détail du contenu du colis ? <Link href="/contact" className="underline">Écrivez-nous</Link>.
+              {site.mockup && <ToConfirm className="ml-2 border-white/30 text-white/60" />}
             </p>
           )}
           <div className="relative mt-10 min-h-56 flex-1">
@@ -197,7 +199,7 @@ export function SpecsAndBox({ product }: { product: Product }) {
 /* ------------------------------------------------ Valeur du comparateur */
 
 export function CompareValue({ value }: { value: string | boolean | null }) {
-  if (value === null) return <ToConfirm />;
+  if (value === null) return site.mockup ? <ToConfirm /> : <span className="text-muted">Non précisé</span>;
   if (value === true)
     return (
       <span className="inline-flex items-center gap-1.5">

@@ -3,6 +3,7 @@
 import { refresh } from "next/cache";
 import { requireAdmin } from "@/lib/auth/admin";
 import { supplierMode } from "@/lib/cj/orders";
+import { sendShippingNotice } from "@/lib/notify/order-emails";
 import { forwardOrderToSupplier, syncSupplierOrders } from "@/lib/orders/fulfillment";
 import { addOrderNote, changeOrderStatus, getOrder, OrderError, setTracking } from "@/lib/orders/service";
 import { isOrderStatus } from "@/lib/orders/status";
@@ -37,7 +38,10 @@ export async function saveOrderTracking(number: string, carrier: string, trackin
   const carrierName = text(carrier, 60);
   const tracking = text(trackingNumber, 60);
   if (!orderNumber || !carrierName || !tracking) return { error: "Indique le transporteur et le numéro de suivi." };
-  return run(() => setTracking(orderNumber, carrierName, tracking));
+  return run(async () => {
+    await setTracking(orderNumber, carrierName, tracking);
+    await sendShippingNotice(orderNumber);
+  });
 }
 
 export async function saveOrderNote(number: string, message: string): Promise<AdminActionResult> {

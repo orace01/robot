@@ -6,7 +6,7 @@ import { Lock, RotateCcw, ShoppingBag, Trash2, Truck } from "lucide-react";
 import { QuantityStepper } from "@/components/cart/quantity";
 import { ButtonLink } from "@/components/ui/button";
 import { cart, useCart } from "@/lib/cart";
-import { formatPrice, vatIncluded } from "@/lib/format";
+import { formatPrice } from "@/lib/format";
 import { site } from "@/lib/site";
 
 export function CartView() {
@@ -87,10 +87,6 @@ export function CartView() {
             <div className="flex justify-between border-t border-line pt-3 text-lg font-semibold">
               <dt>Total TTC</dt>
               <dd className="tabular-nums">{formatPrice(subtotal)}</dd>
-            </div>
-            <div className="flex justify-between text-xs text-muted">
-              <dt>Dont TVA (20 %)</dt>
-              <dd className="tabular-nums">{formatPrice(vatIncluded(subtotal, site.vatRate))}</dd>
             </div>
           </dl>
           <ButtonLink href="/commande" size="lg" className="mt-6 w-full">

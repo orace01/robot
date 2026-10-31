@@ -3,6 +3,7 @@ import "server-only";
 import { after } from "next/server";
 import type { OrderRow } from "@/db/schema";
 import { formatPrice } from "@/lib/format";
+import { sendOrderConfirmation } from "@/lib/notify/order-emails";
 import { forwardOrderToSupplier } from "@/lib/orders/fulfillment";
 import { addOrderNote, attachPayment, getOrder, markOrderPaid } from "@/lib/orders/service";
 import { statusLabels } from "@/lib/orders/status";
@@ -57,8 +58,11 @@ export async function handleMepayeEvent({ event, data }: MepayeEvent): Promise<v
 
   const paid = await markOrderPaid(order.id, { provider: data.test ? "mepaye_test" : "mepaye", reference: data.id });
   if (paid) {
-    // Transmission à CJ une fois la réponse rendue à Mepaye.
-    after(() => forwardOrderToSupplier(order.id));
+    // Confirmation au client puis transmission à CJ, une fois la réponse rendue à Mepaye.
+    after(async () => {
+      await sendOrderConfirmation(order.number);
+      await forwardOrderToSupplier(order.id);
+    });
   } else if (order.paymentReference !== data.id) {
     await addOrderNote(
       order.number,

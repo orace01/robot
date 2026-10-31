@@ -230,6 +230,18 @@ export async function addOrderNote(number: string, message: string): Promise<voi
   });
 }
 
+/** E-mail envoyé (ou non) au client, consigné dans l'historique (administration seulement). */
+export async function addEmailEvent(orderId: number, message: string): Promise<void> {
+  const db = await getDb();
+  await db.insert(orderEvents).values({
+    orderId,
+    type: "email",
+    message,
+    visibleToCustomer: false,
+    createdAt: new Date(),
+  });
+}
+
 /** Échange avec le fournisseur CJ, consigné dans l'historique (administration seulement). */
 export async function addSupplierEvent(orderId: number, message: string): Promise<void> {
   const db = await getDb();

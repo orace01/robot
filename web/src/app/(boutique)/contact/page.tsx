@@ -25,14 +25,18 @@ export default function ContactPage() {
           <div className="rounded-[24px] bg-white p-6 ring-1 ring-black/5">
             <Mail className="size-5 text-ink-soft" aria-hidden />
             <p className="mt-4 font-medium">Par e-mail</p>
-            <a href={`mailto:${site.email}`} className="text-accent-strong underline-offset-2 hover:underline">
-              {site.email}
-            </a>
+            {site.email ? (
+              <a href={`mailto:${site.email}`} className="text-accent-strong underline-offset-2 hover:underline">
+                {site.email}
+              </a>
+            ) : (
+              <p className="text-sm text-muted">Adresse bientôt disponible : utilisez le formulaire ci-contre.</p>
+            )}
           </div>
           <div className="rounded-[24px] bg-white p-6 ring-1 ring-black/5">
             <Clock className="size-5 text-ink-soft" aria-hidden />
-            <p className="mt-4 font-medium">Réponse {site.supportDelay}</p>
-            <p className="text-sm text-muted">Service client {site.supportHours}.</p>
+            <p className="mt-4 font-medium">Réponse par e-mail</p>
+            <p className="text-sm text-muted">Nous vous répondons dans les meilleurs délais.</p>
           </div>
           <Link
             href="/suivi"
