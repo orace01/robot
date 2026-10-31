@@ -59,6 +59,32 @@ Variante, comme la vidéo de référence : ajouter *« Once reassembled, the rob
 
 ---
 
+## 3. Plans multi-angles, façon présentation de l'iPhone
+
+C'est l'esprit des films produit d'Apple : la caméra glisse au ras du produit et découvre ses bords, ses matières et ses détails, un plan après l'autre, sur un fond sombre et uni. Chaque plan dure 3 à 5 s. Il sert à la fois au hero, aux fiches produit et aux publicités.
+
+**Base commune à ajouter à chaque prompt** :
+*« Ultra-realistic premium product film, the window-cleaning robot from the reference image, isolated on a seamless dark graphite background, controlled studio lighting with soft rim light and gradient reflections, very slow motion-control camera, shallow depth of field, photorealistic materials, no text, no logo. »*
+
+| # | Plan | Mouvement de caméra (à mettre dans le prompt) | Ce qu'on montre |
+|---|---|---|---|
+| 1 | Silhouette | « Starts in near darkness; a thin rim light slowly sweeps across the edge and reveals the robot's outline. » | L'apparition, l'ouverture du film |
+| 2 | Le long du bord | « Macro camera glides along the full length of the robot's side edge, very close, shallow focus rolling along the surface. » | La finesse (6,8 cm pour le Q3) et la qualité de la coque |
+| 3 | Orbite lente | « Camera orbits 90° around the robot at eye level, slow and constant. » | Les volumes, de face puis de trois quarts |
+| 4 | Dessus vers dessous | « Camera tilts from the top face down to the underside, revealing the tracks and microfiber pads. » | Les chenilles ou patins, la face cachée |
+| 5 | Détail de la buse | « Extreme macro on the spray nozzle; a fine mist bursts out and catches the light, rack focus from nozzle to mist. » | La pulvérisation ultrasonique |
+| 6 | Mise au point qui glisse | « Rack focus from the front buttons to the back edge, light gradient moving across the shell. » | Les commandes et la finition |
+| 7 | Retour sur la vitre | « Wide shot: the robot attached to a large window, glides across the glass leaving a perfectly clean path, city lights behind. » | La preuve d'usage, le plan final |
+
+**Montage conseillé (pub ou hero de 15 à 20 s)** : 1, 2, 3, 5, 4, puis 7.
+- Les plans s'enchaînent en fondu au noir ou par raccord de mouvement.
+- Aucun plan n'est répété.
+- Pour une publicité, les règles R-005 s'appliquent : coupes de 1,2 à 1,4 s, et aucun plan réutilisé.
+
+À faire pour chaque robot (Q3, S2, O1), en partant de sa vraie photo détourée. Les angles qu'on ne connaît pas encore, comme le dessous du O1, attendent une photo de référence : sans elle, Flow inventerait.
+
+---
+
 ## Après la génération
 1. Choisir les meilleures prises, fidèles aux vrais robots.
 2. Les déposer dans `web/public/produits/<robot>/` :
