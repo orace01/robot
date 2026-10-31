@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BatteryCharging, BellRing, Link2, ScanLine } from "lucide-react";
 import { Reveal } from "@/components/motion/reveal";
 import { AnnotatedProduct } from "@/components/product/annotated-product";
+import { ExplodedRobot } from "@/components/home/exploded-robot";
 import { LineupCard, type LineupItem } from "@/components/home/lineup-card";
 import { Accordion } from "@/components/ui/accordion";
 import { ButtonLink } from "@/components/ui/button";
@@ -114,6 +115,31 @@ export async function Lineup() {
         </ul>
       </Container>
     </section>
+  );
+}
+
+/* ------------------------------------------------ Vue éclatée du Q3 */
+
+/** Les trois couches présentées, de haut en bas, reprises des fonctions du Q3. */
+const Q3_LAYERS = ["Pulvérisation ultrasonique", "Moteur sans balais", "Chenilles multicouches"];
+
+export function ExplodedQ3() {
+  const q3 = getProduct("q3")!;
+  const layers = Q3_LAYERS.map((eyebrow) => {
+    const feature = q3.features.find((f) => f.eyebrow === eyebrow)!;
+    return { eyebrow, title: feature.title, text: feature.text };
+  });
+  const thickness = q3.stats.find((s) => s.label === "Épaisseur")!;
+
+  return (
+    <ExplodedRobot
+      name={`${site.name} ${q3.model}`}
+      slug={q3.slug}
+      price={q3.price}
+      image={q3.hero}
+      thickness={`${thickness.value} ${thickness.unit}`}
+      layers={layers}
+    />
   );
 }
 
