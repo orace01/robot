@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-satoshi), ui-sans-serif, system-ui, sans-serif;
+  /* Titres : After Display (licence à fournir), Cabinet Grotesk en attendant. */
+  --font-display: var(--font-cabinet), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", monospace;
 
   /* Base claire et monochrome, un seul accent bleu (cf. inspirations). */
@@ -61,13 +63,13 @@
   }
 }
 
-/* Titres « Smart Spray » : la police Archivo est variable en largeur. */
+/* Titres de la marque (duo After + Satoshi). */
 @utility condensed {
-  font-stretch: 68%;
+  font-family: var(--font-display);
 }
 
 @utility semi-condensed {
-  font-stretch: 85%;
+  font-family: var(--font-display);
 }
 
 /*
@@ -146,6 +148,29 @@
 
   html[data-scroll-behavior="smooth"] {
     scroll-behavior: smooth;
+  }
+
+  /* Lenis (R-010) : il gère seul le défilement fluide. */
+  html.lenis,
+  html.lenis[data-scroll-behavior="smooth"] {
+    scroll-behavior: auto;
+  }
+
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  .lenis.lenis-stopped {
+    overflow: clip;
+  }
+
+  .lenis [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+
+  .lenis.lenis-smooth iframe {
+    pointer-events: none;
   }
 
   body {

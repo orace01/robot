@@ -10,6 +10,7 @@ import { Logo } from "@/components/ui/logo";
 import { useCart } from "@/lib/cart";
 import { cn } from "@/lib/cn";
 import { nav } from "@/lib/site";
+import { lockScroll, unlockScroll } from "@/lib/smooth-scroll";
 
 function subscribeScroll(callback: () => void) {
   window.addEventListener("scroll", callback, { passive: true });
@@ -33,10 +34,15 @@ export function Header() {
     if (!menuOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    lockScroll();
     return () => {
       document.body.style.overflow = previousOverflow;
+      unlockScroll();
     };
   }, [menuOpen]);
+
+  // En haut de l'accueil, l'en-tête est posé sur la scène sombre du hero.
+  const onDark = pathname === "/" && !scrolled && !menuOpen;
 
   const isActive = (href: string) => !href.includes("#") && pathname.startsWith(href);
   const closeMenu = () => setMenuOpen(false);
@@ -52,7 +58,7 @@ export function Header() {
         )}
       >
         <Container className="flex h-18 items-center justify-between gap-6">
-          <Logo className="relative z-10" />
+          <Logo className="relative z-10" tone={onDark ? "light" : "dark"} />
 
           <nav aria-label="Navigation principale" className="hidden items-center gap-1 lg:flex">
             {nav.map((link) => (
@@ -61,7 +67,11 @@ export function Header() {
                 href={link.href}
                 className={cn(
                   "rounded-full px-4 py-2 text-sm transition",
-                  isActive(link.href) ? "bg-ink/[0.06] text-ink" : "text-ink-soft hover:bg-ink/5 hover:text-ink",
+                  onDark
+                    ? "text-white/80 hover:bg-white/10 hover:text-white"
+                    : isActive(link.href)
+                      ? "bg-ink/[0.06] text-ink"
+                      : "text-ink-soft hover:bg-ink/5 hover:text-ink",
                 )}
               >
                 {link.label}
@@ -72,7 +82,10 @@ export function Header() {
           <div className="flex items-center gap-2">
             <Link
               href="/suivi"
-              className="hidden items-center gap-2 rounded-full px-3 py-2 text-sm text-ink-soft transition hover:bg-ink/5 hover:text-ink md:inline-flex"
+              className={cn(
+                "hidden items-center gap-2 rounded-full px-3 py-2 text-sm transition md:inline-flex",
+                onDark ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-ink-soft hover:bg-ink/5 hover:text-ink",
+              )}
             >
               <PackageSearch className="size-4" aria-hidden />
               Suivi de commande
@@ -80,18 +93,29 @@ export function Header() {
             <button
               type="button"
               onClick={openCart}
-              className="inline-flex h-10 items-center gap-2.5 rounded-full bg-ink pr-1.5 pl-4 text-sm font-medium text-white transition hover:bg-ink-soft"
+              className={cn(
+                "inline-flex h-10 items-center gap-2.5 rounded-full pr-1.5 pl-4 text-sm font-medium transition",
+                onDark ? "bg-white text-ink hover:bg-white/90" : "bg-ink text-white hover:bg-ink-soft",
+              )}
               aria-label={`Ouvrir le panier, ${count} article${count > 1 ? "s" : ""}`}
             >
               Panier
-              <span className="grid size-7 place-items-center rounded-full bg-white text-xs text-ink tabular-nums">
+              <span
+                className={cn(
+                  "grid size-7 place-items-center rounded-full text-xs tabular-nums",
+                  onDark ? "bg-ink text-white" : "bg-white text-ink",
+                )}
+              >
                 {count}
               </span>
             </button>
             <button
               type="button"
               onClick={() => setMenuOpen((open) => !open)}
-              className="grid size-10 place-items-center rounded-full bg-white/60 ring-1 ring-line lg:hidden"
+              className={cn(
+                "grid size-10 place-items-center rounded-full ring-1 lg:hidden",
+                onDark ? "bg-white/10 text-white ring-white/25" : "bg-white/60 ring-line",
+              )}
               aria-expanded={menuOpen}
               aria-controls="menu-mobile"
               aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}

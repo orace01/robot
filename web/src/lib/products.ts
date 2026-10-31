@@ -91,6 +91,8 @@ export interface Product {
   /** Prix de vente TTC en centimes (provisoire). */
   price: number;
   hero: ProductImage;
+  /** Scène plein écran du hero de l'accueil (photo de situation). */
+  scene: ProductImage;
   gallery: ProductImage[];
   cardSpecs: string[];
   stats: Stat[];
@@ -124,6 +126,7 @@ const q3: Product = {
     "Double réservoir et pulvérisation ultrasonique, trois modes de nettoyage, capteurs anti-chute, batterie de secours et télécommande : le Q3 réunit tout ce qu'on attend d'un robot laveur de vitres. Avec 6,8 cm d'épaisseur, il passe même entre une vitre et une grille de défense.",
   price: 26900,
   hero: q3Hero,
+  scene: img("/produits/q3/situation-ville.webp", 800, 800, ""),
   gallery: [
     q3Hero,
     img("/produits/q3/situation-ville.webp", 800, 800, "Le Q3 sur une baie vitrée face à la ville"),
@@ -276,6 +279,8 @@ const s2: Product = {
     "Deux buses humidifient la vitre pendant que deux disques en microfibre l'essuient. Le S2 repère les cadres pour couper la pulvérisation au bon moment et ajuste sa force d'aspiration selon l'état de la vitre.",
   price: 22900,
   hero: s2Hero,
+  // Scène provisoire (celle du Q3), à remplacer par une image Google Flow.
+  scene: img("/produits/q3/situation-facade.webp", 800, 800, ""),
   gallery: [
     s2Hero,
     s2ThreeQuarter,
@@ -418,6 +423,8 @@ const o1: Product = {
     "Le O1 va droit au but : il se plaque à la vitre grâce à sa puissante aspiration, la parcourt de bord en bord et l'essuie avec ses lingettes microfibre. Parfait pour les fenêtres avec cadre, les miroirs et les parois de douche.",
   price: 17000,
   hero: o1Hero,
+  // Scène provisoire (celle du Q3), à remplacer par une image Google Flow.
+  scene: img("/produits/q3/situation-baie.webp", 660, 660, ""),
   gallery: [o1Hero, img("/produits/o1/trois-quarts.webp", 466, 254, "Le O1 vu de trois quarts", true)],
   cardSpecs: ["5600 Pa", "Télécommande", "Vitres avec cadre"],
   stats: [

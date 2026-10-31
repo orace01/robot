@@ -11,6 +11,7 @@ import { buttonClass } from "@/components/ui/button";
 import { cart, useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
 import { site } from "@/lib/site";
+import { lockScroll, unlockScroll } from "@/lib/smooth-scroll";
 
 export function CartDrawer() {
   const { open, closeCart } = useCartDrawer();
@@ -22,10 +23,12 @@ export function CartDrawer() {
     const onKey = (event: KeyboardEvent) => event.key === "Escape" && closeCart();
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    lockScroll();
     document.addEventListener("keydown", onKey);
     closeRef.current?.focus();
     return () => {
       document.body.style.overflow = previousOverflow;
+      unlockScroll();
       document.removeEventListener("keydown", onKey);
     };
   }, [open, closeCart]);
