@@ -1,0 +1,71 @@
+<title>Hero Clair</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Atelier sur fond blanc (palette de la refonte) : deux écrans côte à côte, un sélecteur commun. */
+:root {
+  --nuit: #06141B; --ardoise: #11212D; --vitre: #253745; --acier: #4A5C6A; --brume: #9BA8AB; --givre: #CCD0CF; --blanc: #FFFFFF;
+  --sans: "Archivo", ui-sans-serif, system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--blanc); color: var(--nuit); font-family: var(--sans); -webkit-font-smoothing: antialiased;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 48px;
+}
+.tete { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+h1 { margin: 0; font-size: 22px; font-weight: 700; font-stretch: 80%; text-wrap: balance; }
+.tete p { margin: 4px 0 0; font-size: 13px; color: var(--acier); }
+.choix { display: flex; gap: 6px; background: var(--blanc); border: 1px solid var(--givre); border-radius: 999px; padding: 5px; }
+.choix button { font: inherit; padding: 8px 16px; border: 0; border-radius: 999px; font-size: 13px; color: var(--acier); background: none; cursor: pointer; }
+.choix button[aria-pressed="true"] { background: var(--nuit); color: var(--blanc); }
+.choix .mono { font-family: var(--mono); }
+:focus-visible { outline: 2px solid var(--nuit); outline-offset: 3px; }
+.cadres { display: flex; gap: 28px; align-items: flex-start; flex-wrap: wrap; }
+.cadre { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.cadre-bureau { flex: 1 1 640px; }
+.legende { font-family: var(--mono); font-size: 12px; color: var(--acier); }
+.ecran-bureau { position: relative; width: 100%; border: 1px solid var(--givre); border-radius: 14px; overflow: hidden; background: var(--blanc); }
+.ecran-bureau iframe { position: absolute; top: 0; left: 0; width: 1440px; height: 880px; border: 0; transform-origin: 0 0; }
+.ecran-mobile { width: 390px; max-width: 100%; height: 844px; border: 1px solid var(--brume); border-radius: 44px; overflow: hidden; background: var(--blanc); }
+.ecran-mobile iframe { width: 390px; max-width: 100%; height: 844px; border: 0; display: block; }
+.note { margin-top: 18px; font-size: 13px; color: var(--acier); max-width: 70ch; line-height: 1.6; }
+</style>
+
+<header class="tete">
+  <div>
+    <h1>Clair · hero bureau et mobile</h1>
+    <p>Bureau : wireframe meubles @bee_ui.ux · mobile : landing Ondera · fond blanc · prix provisoires</p>
+  </div>
+  <div class="choix" role="group" aria-label="Robot affiché">
+    <button data-robot="q3" aria-pressed="true"><span class="mono">01</span> Q3</button>
+    <button data-robot="s2" aria-pressed="false"><span class="mono">02</span> S2</button>
+    <button data-robot="o1" aria-pressed="false"><span class="mono">03</span> O1</button>
+  </div>
+</header>
+
+<div class="cadres">
+  <section class="cadre cadre-bureau">
+    <div class="legende">Bureau · 1440 px</div>
+    <div class="ecran-bureau" id="ecranBureau"><iframe id="fBureau" name="bureau" title="Hero bureau 1440 px" src="hero-clair.html"></iframe></div>
+  </section>
+  <section class="cadre">
+    <div class="legende">Mobile · 390 px · faites défiler pour voir la barre d'achat</div>
+    <div class="ecran-mobile"><iframe id="fMobile" name="mobile" title="Hero mobile 390 px" src="hero-clair.html"></iframe></div>
+  </section>
+</div>
+
+<p class="note">Le sélecteur 01, 02, 03, la vignette mobile et les étiquettes d'usage changent le robot dans les deux écrans. Le bouton plein sombre est réservé à l'achat, comme sur Loop.</p>
+
+<script>
+const fB = document.getElementById("fBureau"), fM = document.getElementById("fMobile"), ecran = document.getElementById("ecranBureau");
+const ajuster = () => { const s = ecran.clientWidth / 1440; fB.style.transform = "scale(" + s + ")"; ecran.style.height = (880 * s) + "px"; };
+addEventListener("resize", ajuster); ajuster();
+const robots = ["q3", "s2", "o1"];
+const marquer = id => document.querySelectorAll(".choix button").forEach(b => b.setAttribute("aria-pressed", b.dataset.robot === id));
+const diffuser = id => { marquer(id); [fB, fM].forEach(f => { try { f.contentWindow.postMessage({ clair: id }, "*"); } catch (e) {} }); };
+document.querySelectorAll(".choix button").forEach(b => b.addEventListener("click", () => diffuser(b.dataset.robot)));
+addEventListener("message", e => { if (e.data && robots.includes(e.data.clair)) diffuser(e.data.clair); });
+</script>

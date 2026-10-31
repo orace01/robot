@@ -1,0 +1,470 @@
+<title>Passation Clair</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Mise en page : bandeau « Smart Spray » (titre condensé géant) + fiche technique « ORBIT » en panneaux gris arrondis. */
+:root {
+  --canvas: #f2f3f5;
+  --surface: #ffffff;
+  --mist: #e7e9ed;
+  --line: #d8dbe1;
+  --ink: #0d0f12;
+  --ink-soft: #3a3f48;
+  --muted: #6b727d;
+  --faint: #a1a7b0;
+  --accent: #2d5bff;
+  --accent-soft: #e4eaff;
+  --deep: #081845;
+  --deep-2: #1236c4;
+  --ok: #12a26a;
+  --warn: #b26a00;
+  --warn-soft: #fff1cc;
+  --stage-a: #dde1e6;
+  --stage-b: #f6f7f8;
+  --font-sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --canvas: #070d22; --surface: #0d1636; --mist: #131f48; --line: #22305e;
+    --ink: #eef1f7; --ink-soft: #c3c9d6; --muted: #8e97ab; --faint: #5d6680;
+    --accent: #6f8dff; --accent-soft: #17255c; --deep: #040a1f; --deep-2: #1236c4;
+    --ok: #38c98f; --warn: #f0b44c; --warn-soft: #2b2210;
+    --stage-a: #0b1430; --stage-b: #101b40;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --canvas: #070d22; --surface: #0d1636; --mist: #131f48; --line: #22305e;
+  --ink: #eef1f7; --ink-soft: #c3c9d6; --muted: #8e97ab; --faint: #5d6680;
+  --accent: #6f8dff; --accent-soft: #17255c; --deep: #040a1f; --deep-2: #1236c4;
+  --ok: #38c98f; --warn: #f0b44c; --warn-soft: #2b2210;
+  --stage-a: #0b1430; --stage-b: #101b40;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 56px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 16px; }
+.eyebrow {
+  font-family: var(--font-mono); font-size: 11px; line-height: 16px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+}
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+code, .mono { font-family: var(--font-mono); font-size: 0.86em; overflow-wrap: anywhere; }
+a { color: var(--accent); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* Bandeau d'ouverture */
+.hero {
+  position: relative; overflow: hidden; border-radius: 28px;
+  background-color: var(--mist);
+  background-image: linear-gradient(to bottom, var(--stage-a), var(--mist) 50%, var(--stage-b));
+  padding: clamp(22px, 4vw, 44px);
+  display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 28px; align-items: end;
+}
+.hero::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M28 23v10M23 28h10' stroke='%23808897' stroke-opacity='.35' stroke-width='1.2'/%3E%3C/svg%3E");
+  background-size: 56px 56px;
+}
+.hero > * { position: relative; min-width: 0; }
+.hero-top { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-stretch: 85%; font-size: 22px; letter-spacing: -0.03em; }
+.brand svg { width: 28px; height: 28px; color: var(--ink); }
+.pill {
+  display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line);
+  background: var(--surface); border-radius: 999px; padding: 5px 12px;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft);
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
+.title {
+  font-stretch: 62%; font-weight: 800; text-transform: uppercase;
+  font-size: clamp(56px, 11vw, 132px); line-height: 0.86; letter-spacing: -0.02em;
+}
+.title .l2 { display: block; padding-left: 0.5em; }
+.title .l3 { display: block; color: var(--faint); }
+.hero-side { display: grid; gap: 14px; }
+.hero-side h2 { font-size: 22px; font-weight: 500; line-height: 1.25; }
+.spec-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.spec { background: var(--surface); border-radius: 18px; padding: 12px 14px; display: grid; gap: 2px; }
+.spec b { font-stretch: 65%; font-weight: 800; font-size: 32px; line-height: 1; font-variant-numeric: tabular-nums; }
+
+/* Panneaux */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: clamp(18px, 3vw, 28px); display: grid; gap: 16px; min-width: 0; align-content: start; }
+.panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.panel h2 { font-size: 26px; font-weight: 700; font-stretch: 85%; letter-spacing: -0.01em; line-height: 1.15; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+
+/* Journal */
+.log { display: grid; }
+.entry { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 18px; padding-block: 16px; border-top: 1px solid var(--line); }
+.entry:first-child { border-top: 0; padding-top: 0; }
+.entry-meta { display: grid; gap: 4px; align-content: start; }
+.entry-num { font-stretch: 62%; font-weight: 800; font-size: 40px; line-height: 0.9; color: var(--accent); font-variant-numeric: tabular-nums; }
+.entry h3 { font-size: 17px; font-weight: 650; margin-bottom: 6px; }
+.entry ul { margin: 6px 0 0; padding-left: 18px; color: var(--ink-soft); }
+.entry li + li { margin-top: 3px; }
+.quote { border-left: 2px solid var(--accent); padding-left: 12px; color: var(--muted); font-style: italic; }
+
+/* Listes techniques */
+.kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 18px; margin: 0; }
+.kv dt { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding-top: 3px; }
+.kv dd { margin: 0; color: var(--ink-soft); min-width: 0; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { border-radius: 999px; background: var(--mist); padding: 3px 10px; font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); }
+
+/* Robots */
+.robots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.robot { border-radius: 18px; padding: 16px; background-image: linear-gradient(to bottom, var(--stage-a), var(--stage-b)); display: grid; gap: 4px; }
+.robot b { font-stretch: 62%; font-weight: 800; font-size: 44px; line-height: 0.95; }
+.robot .price { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+/* Bande bleu électrique : blanc fixe sur fond toujours sombre */
+.deep {
+  --on-deep: #ffffff; --on-deep-soft: #dfe5ff; --on-deep-label: #a9b8ff;
+  border-radius: 22px; color: var(--on-deep); padding: clamp(18px, 3vw, 28px); display: grid; gap: 14px;
+  background-color: var(--deep);
+  background-image: linear-gradient(to bottom right, var(--deep), #0b2272 50%, var(--deep-2));
+}
+.deep .eyebrow { color: var(--on-deep-label); }
+.deep h2 { font-size: 26px; font-weight: 700; font-stretch: 85%; }
+.deep ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--on-deep-soft); }
+
+/* À confirmer */
+.checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.checklist li { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 10px; color: var(--ink-soft); }
+.box { width: 14px; height: 14px; border: 1.5px solid var(--faint); border-radius: 4px; margin-top: 5px; }
+.alert { background: var(--warn-soft); color: var(--warn); border-radius: 14px; padding: 12px 14px; display: grid; gap: 4px; }
+.alert strong { color: var(--ink); }
+
+.moodboard { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.mood { border-radius: 16px; border: 1px solid var(--line); padding: 14px; display: grid; gap: 6px; min-width: 0; align-content: start; color: var(--ink-soft); }
+.swatches { display: flex; gap: 6px; flex-wrap: wrap; }
+.sw { width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--line); }
+
+footer { color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-top: 6px; }
+
+@media (max-width: 860px) {
+  .hero, .grid-2, .robots, .moodboard { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 520px) {
+  .entry { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .spec b { font-size: 26px; }
+  .kv { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .kv dd { margin-bottom: 8px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-top">
+      <span class="brand">
+        <svg viewBox="0 0 28 28" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="8" fill="currentColor"/><path d="M8.5 19.5 19.5 8.5M8.5 13.5l5-5" stroke="var(--canvas)" stroke-width="2.4" stroke-linecap="round"/></svg>
+        clair
+      </span>
+      <span class="pill"><span class="dot"></span>Session ouverte · 28 oct. 2026</span>
+    </div>
+    <h1 class="title">Passation<span class="l2">du projet</span><span class="l3">robot</span></h1>
+    <div class="hero-side">
+      <p class="eyebrow">Boutique de robots laveurs de vitres</p>
+      <h2>Le point de reprise du projet, mis à jour à chaque message.</h2>
+      <div class="spec-row">
+        <div class="spec"><span class="eyebrow">Entrées</span><b>13</b></div>
+        <div class="spec"><span class="eyebrow">Commits</span><b>11</b></div>
+        <div class="spec"><span class="eyebrow">Robots</span><b>3</b></div>
+      </div>
+    </div>
+  </header>
+
+  <section class="panel" aria-labelledby="journal">
+    <div class="panel-head">
+      <h2 id="journal">Journal de session</h2>
+      <span class="eyebrow">Du plus récent au plus ancien</span>
+    </div>
+    <div class="log">
+      <article class="entry">
+        <div class="entry-meta"><span class="entry-num">13</span><span class="eyebrow">31 oct. · Vidéos Google Flow</span></div>
+        <div>
+          <h3>Images clés et premières vidéos du hero, mobile d'abord</h3>
+          <p class="quote">« Génère tout toi seul, le storyboard de chaque vidéo, de A à Z. » · « Je veux une séquence de 4 angles différents, le début est bien. »</p>
+          <ul>
+            <li>Storyboards des 5 vidéos 9:16 dans <code>docs/marque/storyboards-9x16.md</code> : hero Q3, S2 et O1, vue éclatée du Q3, film multi-angles façon iPhone (6 plans). Références ajoutées par toi dans <code>docs/marque/flow-references/</code>.</li>
+            <li>Projet Flow ouvert sur ton compte Pro. Les photos des robots ont été importées par toi : Flow refuse les fichiers envoyés par programme.</li>
+            <li>6 images clés 9:16 (Nano Banana, gratuit) : Q3 baie en étage au coucher du soleil, S2 véranda le matin, O1 fenêtre sous la pluie. Puis leurs versions 16:9, même rendu mais recomposées (pas au pixel près) : validé par toi. Fichiers dans <code>docs/marque/flow-rendus/</code>.</li>
+            <li>Vidéo test V1 du Q3 (Veo 3.1 Quality, 9:16, 8 s, 100 crédits) : beau rendu, mais brume trop forte et flanc du robot inventé en macro. V1b corrigée : brume fine, plus de flanc inventé, mais peu de variété d'angles.</li>
+            <li>En cours : séquence de 4 angles pour le hero du Q3, en gardant le début de V1.</li>
+          </ul>
+        </div>
+      </article>
+      <article class="entry">
+        <div class="entry-meta"><span class="entry-num">12</span><span class="eyebrow">31 oct. · Accueil · Git</span></div>
+        <div>
+          <h3>Vue éclatée du Q3, gamme après le hero, récupération de main</h3>
+          <p class="quote">« Je veux une section d'un des robots qui se décompose comme ça. » · « Il faut pull à côté ce qui a été fait. »</p>
+          <ul>
+            <li><code>main</code> récupéré (commit <code>aaebd67</code> : la boutique devient <strong>Klair</strong>, pages légales, e-mails clients, verrou de vente) ; notre travail rejoué par-dessus sur <code>clair-with-branding</code>, un seul conflit (<code>layout.tsx</code>) résolu.</li>
+            <li>Section « Trois robots. Une seule promesse. » refaite en style « after » de la vidéo Flux Theory et placée juste après le hero : robot seul sur fond clair, sa scène apparaît au survol, ajout direct au panier.</li>
+            <li>Nouvelle section « Tout tient en 6,8 cm » : le Q3 s'ouvre en 3 couches au défilement (pulvérisation, moteur, chenilles), étiquettes une à une, puis « Découvrir ». Provisoire en tranches de photo, la vidéo Flow la remplacera.</li>
+            <li>Les deux blocs sombres ne se suivent plus : les cas d'usage les séparent.</li>
+            <li>Commits <code>fdb3e29</code>, <code>96afaf4</code>, <code>bbe3f5d</code>.</li>
+          </ul>
+        </div>
+      </article>
+      <article class="entry">
+        <div class="entry-meta"><span class="entry-num">11</span><span class="eyebrow">31 oct. · Hero React · Lenis</span></div>
+        <div>
+          <h3>Hero fluide en React, branché aux produits</h3>
+          <p class="quote">« On oublie la maquette, passe au React directement, branché au backend. » · « N'oublie pas de mettre Lenis dans le projet. »</p>
+          <ul>
+            <li>Référence : vidéo Instagram du site Flux Theory (scène plein écran par produit, nom géant en bas à gauche, fondu entre produits).</li>
+            <li>Hero React (<code>hero-stage.tsx</code>) : une scène par robot, robot détouré qui flotte, « KLAIR Q3 » en bas à gauche, défilement auto toutes les 6 s, pause, clavier, ajout au vrai panier, « Indisponible » si rupture CJ, barre d'achat fixe sur mobile.</li>
+            <li>Lenis 1.3.27 sur toutes les pages (R-010), arrêté sous le tiroir panier et le menu ; polices Satoshi et Cabinet Grotesk (en attendant After).</li>
+            <li>Lint et build OK, commit <code>874357d</code>.</li>
+          </ul>
+        </div>
+      </article>
+      <article class="entry">
+        <div class="entry-meta"><span class="entry-num">10</span><span class="eyebrow">31 oct. · Cadrage R-001</span></div>
+        <div>
+          <h3>Les six documents de cadrage rédigés et validés</h3>
+          <p class="quote">« Rédige d'abord les docs. » · « Oui, tout validé. »</p>
+          <ul>
+            <li><code>docs/01-prd.md</code> à <code>06-implementation-plan.md</code> + <code>revue-coherence.md</code> : rétro-documentation de la boutique existante, plus le hero fluide et Lenis.</li>
+            <li>13 questions tranchées (prix 269/229/170 €, ordre Q3-S2-O1, CTA « Ajouter au panier », boutons provisoires 10 px…). Statut <strong>finalisé</strong> : le code est débloqué.</li>
+          </ul>
+        </div>
+      </article>
+      <article class="entry">
+        <div class="entry-meta"><span class="entry-num">09</span><span class="eyebrow">30-31 oct. · Outils</span></div>
+        <div>
+          <h3>Agent Reach installé, Manus et Flow ouverts</h3>
+          <p class="quote">« Installe-toi le skill Agent Reach pour que tu puisses lire les vidéos. »</p>
+          <ul>
+            <li>Agent Reach 1.6.0 (dépôt officiel Panniantong, MIT) : sous-titres et recherche YouTube, Bilibili, Reddit… Ne lit pas TikTok ; la transcription audio demande une clé Groq que tu saisis toi-même.</li>
+            <li>Les vidéos Instagram se lisent aussi avec yt-dlp + ffmpeg (images extraites).</li>
+            <li>Manus et Google Flow ouverts dans le navigateur latéral ; connexions faites par toi.</li>
+          </ul>
+        </div>
+      </article>
+      <article class="entry">
+        <div class="entry-meta"><span class="entry-num">08</span><span class="eyebrow">30 oct. · Boutons</span></div>
+        <div>
+          <h3>Boutons jugés « AI slop », 10 sites d'inspiration</h3>
+          <p class="quote">« Les formes des boutons ne me plaisent pas du tout, il y a de l'AI slop dedans. »</p>
+          <ul>
+            <li>Sources proposées : Godly, Awwwards Elements, Refero, Mobbin, Commerce Cream, Land-book, Lapa Ninja, Siteinspire, Cosmos, Savee.</li>
+            <li>En attente de tes captures ; boutons provisoires rectangulaires à 10 px d'arrondi en attendant.</li>
+          </ul>
+        </div>
+      </article>
+      <article class="entry">
+        <div class="entry-meta"><span class="entry-num">07</span><span class="eyebrow">30 oct. · Branding · hero</span></div>
+        <div>
+          <h3>Hero sur fond blanc, inspirations Ondera, point marque</h3>
+          <p class="quote">« Pour le branding la typo c'est pas encore ça, on va prendre des typos sur Fontshare pour un aspect plus premium. »</p>
+          <ul>
+            <li>Maquette du hero reconstruite sur fond blanc : bureau d'après le wireframe meubles @bee_ui.ux (panneau d'un seul contour, encoche d'achat, cartes qui mordent sur le panneau), mobile d'après Ondera (mot CLAIR pleine largeur, pastille d'achat, vignette du robot suivant). <a href="https://claude.ai/artifact/KMQNDXfNX2KBZ4uAdAVecs">Hero Clair</a>.</li>
+            <li>Les 20 wireframes Ondera de vibe-brain réunis : <a href="https://claude.ai/artifact/RKtPKvTs2XSB8euMH6ogWN">Inspirations Ondera</a>, copies dans <code>docs/maquettes/wireframes/ondera/</code>.</li>
+            <li>Deck <a href="https://claude.ai/artifact/PyipTgJny6axQwYACYFBU4">Point marque Clair</a> (<code>docs/marque/point-marque.html</code>) : 4 duos typo, piste After, images et vidéos de référence, formes de CTA, plan de production Google Flow.</li>
+            <li>« After » n'est pas sur Fontshare : seule trace, After Display (Webhance) sur MyFonts, payante, à confirmer. Duo recommandé : Cabinet Grotesk + Satoshi.</li>
+            <li>Duo typo retenu : <strong>D, After Display (titres) + Satoshi (texte)</strong>. Appliqué à la maquette du hero ; tant que le fichier After acheté n'est pas déposé en <code>docs/maquettes/fonts/after-display.woff2</code>, Cabinet Grotesk le remplace.</li>
+            <li>Encore à trancher : lumière de marque, ambiance des pubs, premier robot à produire dans Flow.</li>
+          </ul>
+        </div>
+      </article>
+      <article class="entry">
+        <div class="entry-meta"><span class="entry-num">06</span><span class="eyebrow">28 oct. · Branding · hero</span></div>
+        <div>
+          <h3>Palette de la refonte et premier hero, bureau et mobile</h3>
+          <p class="quote">« Voici les couleurs à respecter et le hero sur lequel je veux partir, mais il me faut une version mobile. »</p>
+          <ul>
+            <li>Nouvelle palette imposée : <code>#06141B</code> <code>#11212D</code> <code>#253745</code> <code>#4A5C6A</code> <code>#9BA8AB</code> <code>#CCD0CF</code> ; disposition bento @bee_ui.ux pour le hero.</li>
+            <li>Branche <code>clair-with-branding</code> créée depuis <code>main</code> (rien de commité). Travail confié à un agent Opus 5.5 en effort moyen, à ta demande.</li>
+            <li>11 wireframes de vibe-brain retenus dans <code>docs/maquettes/wireframes/</code> (posts bee 001, 004, 009, 020, 054, 153, 168, 175).</li>
+            <li>Maquette <code>docs/maquettes/hero-clair.html</code> : sélecteur 01/02/03 (Q3, S2, O1), achat plein clair dans l'encoche, quiz, tags d'usage ; sur mobile, panneau produit d'abord et barre d'achat collante. Publiée à part : <a href="https://claude.ai/artifact/KMQNDXfNX2KBZ4uAdAVecs">Hero Clair</a>.</li>
+            <li>À valider : correspondance usage → robot (baie et véranda → Q3, fenêtres → S2, douche → O1), prix provisoires.</li>
+          </ul>
+        </div>
+      </article>
+      <article class="entry">
+        <div class="entry-meta"><span class="entry-num">05</span><span class="eyebrow">28 oct. · Structure du site</span></div>
+        <div>
+          <h3>Loop Earplugs devient la structure de référence du site</h3>
+          <p class="quote">« Faire acheter le produit au visiteur le plus rapidement possible : on suit la structure de ce site dans les moindres détails, avec mon approche artistique. »</p>
+          <ul>
+            <li>Leçon de Lumikréa : vendre le rêve ne suffit pas, chaque section doit mener à l'achat.</li>
+            <li>34 captures dans <code>docs/reference/loop/</code> : 14 sections de l'accueil (dont 4 diapositives du hero), 11 sections de la fiche produit, l'upsell et le tiroir panier, le mobile (barre d'achat collante), le quiz.</li>
+            <li>Analyse dans <code>docs/reference/loop/analyse.md</code> : 17 formes de CTA, l'ordre exact des sections, et pour chacune sa structure, son CTA et sa traduction pour Clair.</li>
+            <li>Règle clé relevée : le bouton plein sombre est réservé à l'achat, les autres formes servent à explorer ; l'achat est visible sans défiler.</li>
+          </ul>
+        </div>
+      </article>
+      <article class="entry">
+        <div class="entry-meta"><span class="entry-num">04</span><span class="eyebrow">28 oct. · Cadrage</span></div>
+        <div>
+          <h3>Décision : rédiger les six documents de cadrage</h3>
+          <p class="quote">« On va les rédiger, j'ai des trucs que je vais dire dedans, donc attends. »</p>
+          <ul>
+            <li>Les documents 01 à 06 seront rédigés avec tes apports, le PRD en premier, puis relus et validés par toi.</li>
+            <li>En attente de tes consignes avant d'écrire quoi que ce soit.</li>
+          </ul>
+        </div>
+      </article>
+      <article class="entry">
+        <div class="entry-meta"><span class="entry-num">03</span><span class="eyebrow">28 oct. · SEO du site</span></div>
+        <div>
+          <h3>Rattrapage R-008 préparé, bloqué par R-001</h3>
+          <p class="quote">« Oui, rattrape R-008. »</p>
+          <ul>
+            <li>Plan prêt : <code>sitemap.ts</code>, <code>robots.ts</code>, <code>noindex</code> sur <code>/suivi</code>, title, description et URL canonique uniques par page, descriptions produit courtes (environ 150 caractères).</li>
+            <li>Le hook R-001 refuse l'écriture de code tant que les six documents manquent : rien n'a été modifié dans le site.</li>
+            <li>Dépendances installées (<code>npm ci</code>) pour vérifier la compilation plus tard.</li>
+            <li>Titres visibles (« Le robot qui fait vos vitres », « Clair Q3 ») sans la requête « robot laveur de vitres » : formulations à te proposer, pas de changement d'office.</li>
+          </ul>
+        </div>
+      </article>
+      <article class="entry">
+        <div class="entry-meta"><span class="entry-num">02</span><span class="eyebrow">28 oct. · Banque vibe-brain</span></div>
+        <div>
+          <h3>Règle R-008 : les 4 bases SEO en priorité sur chaque site</h3>
+          <p class="quote">« À ajouter dans le vibe brain, ce sont des règles à faire en priorité pour les projets de site. »</p>
+          <ul>
+            <li>Reel @matteocourquin téléchargé avec ton accord et lu image par image : Search Console, sitemap XML, mots-clés par page, balises title et description.</li>
+            <li>Source ajoutée dans <code>vibe-brain/documents/seo-indexation-matteocourquin/</code> (4 leçons, 3 points à vérifier), règle <strong>R-008</strong> dans <code>regles-validees.md</code> et dans le cadre <code>templates/CLAUDE.md</code>, base reconstruite.</li>
+            <li>Contrôle du site Clair : pas de <code>sitemap.ts</code> ni de <code>robots.ts</code> ; balises title et description présentes sur la plupart des pages, admin et panier déjà en <code>noindex</code>.</li>
+          </ul>
+        </div>
+      </article>
+      <article class="entry">
+        <div class="entry-meta"><span class="entry-num">01</span><span class="eyebrow">28 oct. · Mise en place</span></div>
+        <div>
+          <h3>Clonage du dépôt et ouverture de la passation</h3>
+          <p class="quote">« Clone ce repo, on travaille dedans, initialise l'artefact de passation. »</p>
+          <ul>
+            <li>Dépôt <code>orace01/robot</code> cloné dans <code>C:\Web design projects\robot</code>, à jour sur le commit <code>42d6bad</code>.</li>
+            <li>Thème lu dans <code>web/src/app/globals.css</code> et moodboard repéré à la racine (Smart Spray, ORBIT Q4).</li>
+            <li>Passation créée dans <code>docs/passation.html</code>, aux couleurs du site.</li>
+            <li>Aucun fichier du site n'a été modifié.</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <div class="grid-2">
+    <section class="panel" aria-labelledby="etat">
+      <div class="panel-head"><h2 id="etat">État du projet</h2><span class="pill"><span class="dot"></span>Prêt pour la mise en ligne</span></div>
+      <dl class="kv">
+        <dt>Site</dt><dd>Boutique complète dans <code>web/</code> : accueil, catalogue, fiches produit, panier, commande, suivi, pages légales, administration.</dd>
+        <dt>Pile</dt><dd><div class="tags"><span class="tag">Next.js 16</span><span class="tag">React 19</span><span class="tag">Tailwind 4</span><span class="tag">Motion</span><span class="tag">Drizzle</span><span class="tag">Turso</span></div></dd>
+        <dt>Paiement</dt><dd>Mepaye : page de paiement hébergée et webhook signé (<code>/api/payments/notify</code>). Paiement simulé tant que la clé est absente.</dd>
+        <dt>Fournisseur</dt><dd>CJ Dropshipping : prix, stock, délais, transmission automatique des commandes. Suivi relu par <code>/api/cj/sync</code> une fois par jour.</dd>
+        <dt>Hébergement</dt><dd>Vercel, dossier racine <code>web</code>, base Turso.</dd>
+        <dt>Marque</dt><dd><strong>Klair</strong> (anciennement Clair). Typo : After Display (titres, licence à acheter) + Satoshi ; Cabinet Grotesk en attendant.</dd>
+        <dt>Accueil</dt><dd>Hero fluide → gamme (scène au survol) → confiance → vue éclatée du Q3 → anatomie S2 → comment ça marche → cas d'usage → zoom Q3 → avis → FAQ.</dd>
+        <dt>Branche</dt><dd><code>clair-with-branding</code>, à jour avec <code>main</code>, non poussée. Dernier commit : <code>bbe3f5d</code>.</dd>
+      </dl>
+    </section>
+
+    <section class="panel" aria-labelledby="gamme">
+      <div class="panel-head"><h2 id="gamme">La gamme</h2><span class="eyebrow">Prix TTC provisoires</span></div>
+      <div class="robots">
+        <div class="robot"><b>Q3</b><span class="price">269 €</span><span class="eyebrow">Haut de gamme</span></div>
+        <div class="robot"><b>S2</b><span class="price">229 €</span><span class="eyebrow">Milieu de gamme</span></div>
+        <div class="robot"><b>O1</b><span class="price">170 €</span><span class="eyebrow">Entrée de gamme</span></div>
+      </div>
+      <p class="eyebrow">Fiches dans <code>web/src/lib/products.ts</code></p>
+    </section>
+  </div>
+
+  <section class="panel" aria-labelledby="mood">
+    <div class="panel-head"><h2 id="mood">Thème et moodboard</h2><span class="eyebrow">Source : globals.css</span></div>
+    <div class="moodboard">
+      <div class="mood">
+        <span class="eyebrow">Couleurs</span>
+        <div class="swatches">
+          <span class="sw" style="background:#f2f3f5" title="canvas #f2f3f5"></span>
+          <span class="sw" style="background:#0d0f12" title="ink #0d0f12"></span>
+          <span class="sw" style="background:#2d5bff" title="accent #2d5bff"></span>
+          <span class="sw" style="background:#081845" title="deep #081845"></span>
+          <span class="sw" style="background:#1236c4" title="deep-2 #1236c4"></span>
+        </div>
+        <p>Base claire et monochrome, un seul accent bleu, sections bleu électrique.</p>
+      </div>
+      <div class="mood">
+        <span class="eyebrow">Typographies</span>
+        <p><strong style="font-stretch:68%;font-size:22px;text-transform:uppercase;color:var(--ink)">Archivo condensé</strong> pour les titres, <span class="mono">JetBrains Mono</span> pour les petits libellés techniques.</p>
+      </div>
+      <div class="mood">
+        <span class="eyebrow">Références</span>
+        <p>Smart Spray : titres condensés géants, disque derrière le produit, cartes de mesure. ORBIT Q4 : fiche technique annotée, panneaux gris, chiffres clés.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid-2">
+    <section class="panel" aria-labelledby="confirmer">
+      <div class="panel-head"><h2 id="confirmer">À confirmer avant l'ouverture</h2><span class="eyebrow">D'après le README</span></div>
+      <ul class="checklist">
+        <li><span class="box"></span>Prix de vente définitifs et délais réels CJ.</li>
+        <li><span class="box"></span>Solde CJ rechargé, puis <code>CJ_ORDER_MODE=live</code> avec la clé Mepaye <code>mp_live_</code>.</li>
+        <li><span class="box"></span>Mepaye : vente d'objets physiques, cartes françaises en euros, retour sur le site.</li>
+        <li><span class="box"></span>TVA d'import (IOSS) à valider avec le comptable.</li>
+        <li><span class="box"></span>Caractéristiques « À confirmer » du S2 et du O1, prise européenne, contenu des colis.</li>
+        <li><span class="box"></span>Meilleures photos pour le O1.</li>
+        <li><span class="box"></span>Informations légales de l'entreprise.</li>
+        <li><span class="box"></span>Vrais avis clients, puis <code>mockup: false</code> dans <code>site.ts</code>.</li>
+        <li><span class="box"></span>R-008 : créer <code>sitemap.ts</code> et <code>robots.ts</code>, mettre en <code>noindex</code> commande, confirmation et suivi.</li>
+        <li><span class="box"></span>R-008 : une requête principale par page, title et description uniques à relire.</li>
+        <li><span class="box"></span>R-008 : déclarer le domaine dans Google Search Console et y envoyer le sitemap (à faire par toi).</li>
+      </ul>
+    </section>
+
+    <section class="panel" aria-labelledby="cadre">
+      <div class="panel-head"><h2 id="cadre">Points d'attention</h2></div>
+      <div class="alert">
+        <strong>Crédits Google Flow.</strong>
+        <span>Une vidéo Veo 3.1 Quality coûte 100 crédits ; le plan complet en représente environ 1 000. Les images (Nano Banana) sont gratuites. Les six documents de cadrage sont finalisés : R-001 est levée.</span>
+      </div>
+      <dl class="kv">
+        <dt>Secrets</dt><dd>Clés CJ, Mepaye et mot de passe admin dans <code>web/.env.local</code>, jamais versionné.</dd>
+        <dt>Webhook</dt><dd>Garder l'adresse <code>vercel.app</code> et ne jamais la rediriger : Mepaye ne suit pas les redirections.</dd>
+        <dt>Next.js</dt><dd>Version 16 : lire la doc de <code>node_modules/next/dist/docs/</code> avant de coder (AGENTS.md).</dd>
+      </dl>
+    </section>
+  </div>
+
+  <section class="deep" aria-labelledby="suite">
+    <p class="eyebrow">Prochaine étape</p>
+    <h2 id="suite">Séquence de 4 angles pour le hero du Q3</h2>
+    <ol>
+      <li>Hero Q3 en 4 angles (9:16) : angle 1 = début de V1 ; angles 2 à 4 générés plan par plan dans Flow, puis montés.</li>
+      <li>Même méthode pour le S2 et le O1, puis la vue éclatée et les plans multi-angles ; versions 16:9 ensuite.</li>
+      <li>Branchement des vidéos dans le hero (mobile d'abord) et dans la section « Tout tient en 6,8 cm ».</li>
+      <li>Tes captures de boutons, puis refonte des boutons et CTA.</li>
+      <li>Achat et licence web d'After Display, à déposer dans le projet.</li>
+      <li>Rattrapage SEO R-008 (sitemap, robots, metadata), puis push de la branche.</li>
+    </ol>
+  </section>
+
+  <footer>
+    <span>Fichier source : <code>docs/passation.html</code></span>
+    <span>Dépôt : github.com/orace01/robot</span>
+  </footer>
+</div>

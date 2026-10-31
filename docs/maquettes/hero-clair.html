@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hero Clair</title>
+<meta name="description" content="Maquette du hero de Clair, robot laveur de vitres : bureau 1440 px et mobile 390 px.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!--
+  Maquette autonome (aucun lien avec web/). Palette imposée : #06141B #11212D #253745 #4A5C6A #9BA8AB #CCD0CF, fond blanc.
+  Bureau : wireframe @bee_ui.ux « My figma addiction » (meubles). Mobile : landing Ondera (A-133).
+  Le panneau produit est un seul contour tracé en JS (clip-path) à partir des boîtes qui le découpent :
+  encoche d'achat (haut droite), rangée de cartes (haut gauche) ; sur mobile, pastille (haut droite) et vignette (bas gauche).
+  Sans paramètre : les deux cadres côte à côte. ?vue=bureau ou ?vue=mobile : le hero seul. &barre=1 : force la barre d'achat mobile.
+-->
+<style>
+/* Duo typo retenu (D) : After Display pour les titres, Satoshi pour le texte.
+   After est payante (MyFonts) : déposer le fichier acheté en fonts/after-display.woff2 ; d'ici là, Cabinet Grotesk prend le relais. */
+@font-face{font-family:"After Display";src:url("fonts/after-display.woff2") format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Cabinet Grotesk";src:url("fonts/cabinet-grotesk-500.woff2") format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Cabinet Grotesk";src:url("fonts/cabinet-grotesk-800.woff2") format("woff2");font-weight:800;font-display:swap}
+@font-face{font-family:"Satoshi";src:url("fonts/satoshi-400.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Satoshi";src:url("fonts/satoshi-500.woff2") format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Satoshi";src:url("fonts/satoshi-700.woff2") format("woff2");font-weight:700;font-display:swap}
+:root{
+  --nuit:#06141B; --ardoise:#11212D; --vitre:#253745; --acier:#4A5C6A; --brume:#9BA8AB; --givre:#CCD0CF; --blanc:#FFFFFF;
+  --fond:var(--blanc); --voile:#EEF0F0; /* voile : teinte très claire du givre, pour la nav et les cartes */
+  --sans:"Satoshi",ui-sans-serif,system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+  --titre:"After Display","Cabinet Grotesk",ui-sans-serif,system-ui,sans-serif;
+  --gap:14px; --nav-h:62px; --cb:362px; /* bas de la découpe des cartes, depuis le haut du hero */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--fond);color:var(--nuit);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--nuit);outline-offset:3px}
+.mono{font-family:var(--mono)}
+
+/* ---------- Vue « deux cadres » ---------- */
+.atelier{min-height:100vh;padding:28px 24px 48px}
+.atelier-tete{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center;justify-content:space-between;margin-bottom:24px}
+.atelier-tete h1{font-family:var(--titre);font-size:22px;font-weight:800}
+.atelier-tete p{font-size:13px;color:var(--acier);margin-top:4px}
+.choix{display:flex;gap:6px;border:1px solid var(--givre);border-radius:999px;padding:5px}
+.choix button{padding:8px 16px;border-radius:999px;font-size:13px;color:var(--acier)}
+.choix button[aria-pressed="true"]{background:var(--nuit);color:var(--blanc)}
+.cadres{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap}
+.cadre{display:flex;flex-direction:column;gap:10px}
+.cadre-titre{font-family:var(--mono);font-size:12px;color:var(--acier)}
+.cadre-bureau{flex:1 1 640px;min-width:0}
+.ecran-bureau{position:relative;width:100%;border:1px solid var(--givre);border-radius:14px;overflow:hidden;background:var(--fond)}
+.ecran-bureau iframe{position:absolute;top:0;left:0;width:1440px;height:880px;border:0;transform-origin:0 0}
+.ecran-mobile{width:390px;height:844px;border:1px solid var(--brume);border-radius:44px;overflow:hidden;background:var(--fond)}
+.ecran-mobile iframe{width:390px;height:844px;border:0;display:block}
+@media (max-width:480px){.ecran-mobile{width:100%}.ecran-mobile iframe{width:100%}}
+
+/* ---------- Hero bureau ---------- */
+.page{padding:20px}
+.hero{position:relative;height:calc(100vh - 40px);min-height:760px;max-height:900px}
+
+/* nav : pilule claire, la marque en pastille sombre (comme « Home » sur le wireframe) */
+.nav{position:absolute;top:0;left:0;width:calc(39% - var(--gap));height:var(--nav-h);display:flex;align-items:center;gap:2px;padding:6px;border-radius:999px;background:var(--voile)}
+.nav .logo{height:100%;display:grid;place-items:center;padding:0 22px;border-radius:999px;background:var(--nuit);color:var(--blanc);font-family:var(--titre);font-weight:800;font-size:19px}
+.nav a.lien{padding:12px 15px;border-radius:999px;font-size:14px;color:var(--vitre);white-space:nowrap}
+.nav a.lien:hover{background:var(--blanc)}
+
+/* panneau produit : position et contour ; la forme exacte vient de decouper() */
+.scene{position:absolute;left:39%;top:0;right:0;bottom:0}
+.panneau{position:absolute;inset:0;overflow:hidden;border-radius:26px;
+  background:radial-gradient(70% 60% at 64% 58%, var(--acier) 0%, var(--vitre) 70%)}
+.trace{position:absolute;inset:0;width:100%;height:100%}
+.trace path{fill:none;stroke:var(--ardoise);stroke-width:64px;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round;opacity:.3;
+  stroke-dasharray:4200;stroke-dashoffset:0;transition:stroke-dashoffset 1.6s cubic-bezier(.16,1,.3,1)}
+.trace.efface path{stroke-dashoffset:4200;transition:none}
+.produit{position:absolute;left:40%;right:11%;top:24%;bottom:13%;display:flex;align-items:center;justify-content:center}
+.produit img{max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 30px 40px rgba(6,20,27,.5));transition:opacity .35s,transform .6s cubic-bezier(.16,1,.3,1)}
+.produit img.sort{opacity:0;transform:translateY(14px)}
+.etiquette{position:absolute;display:inline-flex;align-items:center;gap:8px;padding:8px 14px 8px 12px;border-radius:999px;
+  background:var(--fond);color:var(--nuit);font-size:13px;font-weight:500;white-space:nowrap}
+.etiquette::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--nuit)}
+.legende{position:absolute;right:26px;bottom:24px;text-align:right;color:var(--blanc)}
+.legende .nom{font-family:var(--titre);font-size:40px;font-weight:800;line-height:1}
+.legende .badge{font-size:13px;color:var(--givre);margin-top:6px}
+.selecteur{position:absolute;left:22px;top:calc(var(--cb) + 22px);display:flex;flex-direction:column;gap:10px}
+.selecteur button{width:46px;height:46px;border-radius:50%;border:1px solid var(--brume);font-family:var(--mono);font-size:13px;color:var(--blanc)}
+.selecteur button[aria-pressed="true"]{background:var(--fond);color:var(--nuit);border-color:var(--fond)}
+.selecteur .m{display:none}
+
+/* encoche haut droite : le seul bouton plein sombre, réservé à l'achat */
+.encoche{position:absolute;top:0;right:0;padding:0 0 var(--gap) var(--gap);z-index:2}
+.achat{display:inline-flex;align-items:center;gap:12px;height:var(--nav-h);padding:0 8px 0 26px;border-radius:999px;background:var(--nuit);color:var(--blanc);font-weight:600;font-size:15px;white-space:nowrap}
+.achat .prix{font-family:var(--mono);font-weight:500;color:var(--givre)}
+.achat .rond{width:46px;height:46px;border-radius:50%;background:var(--blanc);color:var(--nuit);display:grid;place-items:center}
+.achat:hover{background:var(--ardoise)}
+
+/* rangée de cartes : part du bord gauche, mord sur le panneau ; le panneau garde une bande au-dessus */
+.decoupe{position:absolute;left:0;top:var(--nav-h);width:calc(39% + 20%);height:calc(var(--cb) - var(--nav-h));padding:var(--gap) var(--gap) var(--gap) 0;z-index:1}
+.cartes{position:relative;height:100%}
+.piste{display:flex;gap:var(--gap);height:100%;overflow-x:auto;scrollbar-width:none;scroll-behavior:smooth;border-radius:0 22px 22px 0}
+.piste::-webkit-scrollbar{display:none}
+.carte{position:relative;flex:0 0 calc((100% - 2 * var(--gap)) / 2.55);height:100%;border-radius:22px;overflow:hidden;background:var(--voile);display:block}
+.carte img{width:100%;height:100%;object-fit:cover}
+.carte .lib{position:absolute;left:12px;bottom:12px;padding:7px 12px;border-radius:999px;background:var(--fond);color:var(--nuit);font-size:12px;font-weight:600}
+.fleche{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;background:var(--fond);color:var(--nuit);display:grid;place-items:center;font-size:15px;box-shadow:0 2px 10px rgba(6,20,27,.14)}
+.fleche.g{left:10px}.fleche.dr{right:10px}
+
+/* colonne texte */
+.texte{position:absolute;left:0;top:calc(var(--cb) + 30px);width:calc(39% - 44px);bottom:0;display:flex;flex-direction:column}
+.sur-titre,.photo-mobile{display:none}
+h1.titre{font-family:var(--titre);font-size:52px;line-height:1;font-weight:800;letter-spacing:-.02em;text-wrap:balance}
+.chapo{margin-top:18px;font-size:16px;line-height:1.55;color:var(--acier);max-width:440px}
+.ctas{margin-top:20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.quiz{font-size:15px;font-weight:600;text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:1px}
+.quiz .mono{font-size:12px;font-weight:400;color:var(--acier)}
+.tags{margin-top:auto;display:flex;flex-wrap:wrap;gap:8px}
+.tags a{padding:8px 14px;border-radius:999px;border:1px solid var(--givre);font-size:13px;color:var(--vitre)}
+.tags a:hover,.tags a.actif{background:var(--voile);border-color:var(--brume);color:var(--nuit)}
+
+.barre,.entete-mobile,.marque-mobile,.pastille,.vignette{display:none}
+.achat-mobile{display:none !important}
+
+/* ---------- Mobile : landing Ondera ---------- */
+@media (max-width:720px){
+  .page{padding:8px 14px 100px}
+  .hero{height:auto;min-height:0;max-height:none;display:flex;flex-direction:column}
+  .nav,.encoche,.fleche,.selecteur,.etiquette.e2,.etiquette.e3{display:none}
+  .entete-mobile{order:0;display:flex;align-items:center;justify-content:space-between;height:52px}
+  .entete-mobile .carre{width:34px;height:34px;border-radius:10px;background:var(--nuit);color:var(--blanc);display:grid;place-items:center;font-family:var(--titre);font-weight:800;font-size:17px}
+  .entete-mobile .icones{display:flex;gap:4px}
+  .entete-mobile .icones a{width:42px;height:42px;display:grid;place-items:center}
+  .marque-mobile{order:1;display:block;overflow:hidden}
+  .marque-mobile span{display:inline-block;white-space:nowrap;font-family:var(--titre);font-weight:800;line-height:.78;letter-spacing:-.03em;color:var(--vitre);padding-top:4px}
+  .scene{order:2;position:relative;left:auto;top:auto;right:auto;bottom:auto;height:min(112vw,470px);margin-top:10px}
+  .pastille{display:block;position:absolute;top:0;right:0;padding:0 0 8px 8px;z-index:2}
+  .pastille a{width:54px;height:54px;border-radius:50%;background:var(--nuit);color:var(--blanc);display:grid;place-items:center;font-size:18px}
+  .vignette{display:block;position:absolute;left:0;bottom:0;padding:8px 8px 0 0;z-index:2}
+  .vignette button{position:relative;display:block;width:118px;height:118px;border-radius:20px;overflow:hidden;background:var(--voile)}
+  .vignette img{position:absolute;left:10px;right:10px;top:10px;bottom:28px;width:calc(100% - 20px);height:calc(100% - 38px);object-fit:contain}
+  .vignette .lib{position:absolute;left:10px;bottom:8px;font-family:var(--mono);font-size:11px;color:var(--nuit)}
+  .vignette .tour{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:var(--fond);display:grid;place-items:center;font-size:12px}
+  .produit{left:24%;right:8%;top:24%;bottom:22%}
+  .legende{left:18px;top:16px;right:auto;bottom:auto;text-align:left}
+  .legende .nom{font-size:30px}.legende .badge{font-size:12px}
+  .etiquette{font-size:12px;padding:7px 11px 7px 10px}
+  .etiquette.e1{left:auto !important;top:auto !important;right:12px;bottom:14px}
+  .trace path{stroke-width:30px}
+  .texte{order:3;position:static;width:auto;padding:30px 2px 0}
+  .sur-titre{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--acier);margin-bottom:10px}
+  .sur-titre::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--nuit)}
+  h1.titre{font-size:30px;line-height:1.04;font-weight:800;letter-spacing:-.01em;text-transform:uppercase}
+  .photo-mobile{display:block;margin-top:16px;height:150px;border-radius:20px;overflow:hidden;background:var(--voile)}
+  .photo-mobile img{width:100%;height:100%;object-fit:cover;display:block}
+  .chapo{font-size:14.5px;margin-top:14px}
+  .ctas{margin-top:18px;gap:14px}
+  .achat-mobile{display:inline-flex !important;height:52px;font-size:14px;padding:0 6px 0 20px}
+  .achat-mobile .rond{width:40px;height:40px}
+  .tags{margin-top:20px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-14px;padding-right:14px}
+  .tags a{flex:none}
+  .decoupe{order:4;position:static;width:auto;height:auto;padding:0;margin-top:26px}
+  .piste{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;height:auto;overflow:visible;border-radius:0}
+  .carte{height:78px;border-radius:14px}
+  .carte .lib{display:none}
+  .barre{position:fixed;left:10px;right:10px;bottom:10px;z-index:9;display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:6px 6px 6px 18px;border-radius:999px;background:var(--fond);border:1px solid var(--givre);box-shadow:0 8px 24px rgba(6,20,27,.12);
+    transform:translateY(140%);transition:transform .35s cubic-bezier(.16,1,.3,1)}
+  .barre.visible{transform:none}
+  .barre .qui{font-size:14px;line-height:1.2}.barre .qui b{font-stretch:90%;font-size:16px}
+  .barre .qui span{display:block;font-family:var(--mono);font-size:12px;color:var(--acier)}
+  .barre .achat{height:46px;font-size:14px;padding:0 20px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}.piste{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<!-- ===== Vue atelier : deux cadres ===== -->
+<div class="atelier" id="atelier" hidden>
+  <header class="atelier-tete">
+    <div>
+      <h1>Clair · hero, maquette bureau et mobile</h1>
+      <p>Bureau : wireframe meubles @bee_ui.ux · mobile : Ondera · fond blanc · prix provisoires</p>
+    </div>
+    <div class="choix" role="group" aria-label="Robot affiché">
+      <button data-robot="q3" aria-pressed="true"><span class="mono">01</span> Q3</button>
+      <button data-robot="s2" aria-pressed="false"><span class="mono">02</span> S2</button>
+      <button data-robot="o1" aria-pressed="false"><span class="mono">03</span> O1</button>
+    </div>
+  </header>
+  <div class="cadres">
+    <section class="cadre cadre-bureau">
+      <div class="cadre-titre">Bureau · 1440 px</div>
+      <div class="ecran-bureau" id="ecranBureau"><iframe id="fBureau" title="Hero bureau 1440 px"></iframe></div>
+    </section>
+    <section class="cadre">
+      <div class="cadre-titre">Mobile · 390 px</div>
+      <div class="ecran-mobile"><iframe id="fMobile" title="Hero mobile 390 px"></iframe></div>
+    </section>
+  </div>
+</div>
+
+<!-- ===== Le hero ===== -->
+<div class="page" id="page" hidden>
+  <section class="hero" id="hero" aria-label="Clair, robots laveurs de vitres">
+    <div class="entete-mobile">
+      <a class="carre" href="#" aria-label="Clair, accueil">C</a>
+      <div class="icones">
+        <a href="#panier" aria-label="Panier"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 7h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg></a>
+        <a href="#menu" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9h16M8 15h12"/></svg></a>
+      </div>
+    </div>
+    <div class="marque-mobile" aria-hidden="true"><span id="marque">CLAIR</span></div>
+
+    <nav class="nav" aria-label="Navigation principale">
+      <a class="logo" href="#">Clair</a>
+      <a class="lien" href="#robots">Nos robots</a>
+      <a class="lien" href="#comparer">Comparer</a>
+      <a class="lien" href="#quiz">M'aider à choisir</a>
+      <a class="lien" href="#faq">FAQ</a>
+    </nav>
+
+    <div class="scene" id="scene">
+      <div class="panneau" id="panneau">
+        <svg class="trace" id="trace" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M380 470 H900 L380 655 H900 L380 840 H900"/>
+        </svg>
+        <div class="produit"><img id="imgProduit" src="img/q3-face.webp" alt="Robot laveur de vitres Q3 vu de face"></div>
+        <span class="etiquette e1" id="e1"></span>
+        <span class="etiquette e2" id="e2"></span>
+        <span class="etiquette e3" id="e3"></span>
+        <div class="legende"><div class="nom" id="nom">Q3</div><div class="badge" id="badge">Le plus complet</div></div>
+        <div class="selecteur" role="group" aria-label="Choisir un robot">
+          <button data-robot="q3" aria-pressed="true" aria-label="Q3">01</button>
+          <button data-robot="s2" aria-pressed="false" aria-label="S2">02</button>
+          <button data-robot="o1" aria-pressed="false" aria-label="O1">03</button>
+        </div>
+      </div>
+      <div class="pastille" id="pastille"><a href="#panier" id="pastilleLien" aria-label="Ajouter le Q3 au panier">↗</a></div>
+      <div class="vignette" id="vignette"><button id="vignetteBtn" aria-label="Voir le S2"><img id="vignetteImg" src="img/s2-face.webp" alt=""><span class="lib" id="vignetteLib">02 · S2</span><span class="tour" aria-hidden="true">→</span></button></div>
+    </div>
+
+    <div class="encoche" id="encoche">
+      <a class="achat" href="#panier"><span>Ajouter au panier</span><span class="prix" data-prix>· 269 €</span><span class="rond">→</span></a>
+    </div>
+
+    <div class="decoupe" id="decoupe">
+      <div class="cartes">
+        <div class="piste" id="piste">
+          <a class="carte" href="#fenetres"><img src="img/s2-trois-quarts.webp" alt="Robot S2 de trois quarts"><span class="lib">Fenêtres</span></a>
+          <a class="carte" href="#baie-vitree"><img src="img/situation-baie.webp" alt="Robot posé sur une grande baie vitrée"><span class="lib">Baies vitrées</span></a>
+          <a class="carte" href="#veranda"><img src="img/situation-facade.webp" alt="Robot sur une verrière"><span class="lib">Vérandas et verrières</span></a>
+          <a class="carte" href="#douche"><img src="img/salle-de-bain.webp" alt="Robot sur une paroi de salle de bain"><span class="lib">Salle de bain</span></a>
+        </div>
+        <button class="fleche g" id="flecheG" aria-label="Situations précédentes">‹</button>
+        <button class="fleche dr" id="flecheD" aria-label="Situations suivantes">›</button>
+      </div>
+    </div>
+
+    <div class="texte">
+      <p class="sur-titre">Robots laveurs de vitres</p>
+      <h1 class="titre">Le robot laveur de vitres qui grimpe à votre place.</h1>
+      <figure class="photo-mobile"><img id="photoMobile" src="img/situation-baie.webp" alt="Robot au travail sur une baie vitrée"></figure>
+      <p class="chapo">Posez-le sur la vitre : il s'y plaque, la parcourt de bord en bord et l'essuie en microfibre. Trois modèles, de la paroi de douche à la grande baie vitrée.</p>
+      <div class="ctas">
+        <a class="achat achat-mobile" id="achatMobile" href="#panier"><span>Ajouter au panier</span><span class="prix" data-prix>· 269 €</span><span class="rond">→</span></a>
+        <a class="quiz" href="#quiz">Trouver mon robot <span class="mono">(1 min)</span></a>
+      </div>
+      <div class="tags" aria-label="Choisir par usage">
+        <a href="#baie-vitree" data-robot="q3">#BaieVitrée</a>
+        <a href="#veranda" data-robot="q3">#Véranda</a>
+        <a href="#fenetres" data-robot="s2">#Fenêtres</a>
+        <a href="#douche" data-robot="o1">#Douche</a>
+        <a href="#miroirs" data-robot="o1">#Miroirs</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="barre" id="barre" aria-hidden="true">
+    <div class="qui"><b id="barreNom">Clair Q3</b><span data-prix-seul>269 €</span></div>
+    <a class="achat" href="#panier">Ajouter au panier</a>
+  </div>
+</div>
+
+<script>
+const ROBOTS = {
+  q3:{nom:"Q3",num:"01",badge:"Le plus complet",prix:269,img:"img/q3-face.webp",scene:"img/situation-baie.webp",alt:"Robot laveur de vitres Q3 vu de face",
+      etiq:[["Pulvérisation ultrasonique",[60,22]],["6,8 cm d'épaisseur",[16,66]],["Avec ou sans cadre",[58,80]]]},
+  s2:{nom:"S2",num:"02",badge:"Le plus compact",prix:229,img:"img/s2-face.webp",scene:"img/situation-facade.webp",alt:"Robot laveur de vitres S2 vu de face",
+      etiq:[["2 buses de pulvérisation",[60,22]],["2 disques microfibre",[16,66]],["Coupe l'eau près des cadres",[56,80]]]},
+  o1:{nom:"O1",num:"03",badge:"Le plus accessible",prix:170,img:"img/o1-face.webp",scene:"img/salle-de-bain.webp",alt:"Robot laveur de vitres O1 vu de face",
+      etiq:[["Télécommande incluse",[60,22]],["Vitres avec cadre",[16,66]],["Miroirs et douche",[58,80]]]}
+};
+const ORDRE = ["q3","s2","o1"];
+const suivant = id => ORDRE[(ORDRE.indexOf(id) + 1) % ORDRE.length];
+const params = new URLSearchParams(location.search);
+// Le mode vient de l'URL (?vue=…) ou, dans un cadre, de son attribut name (page publiée sans paramètres).
+const vue = params.get("vue") || (["bureau","mobile"].includes(window.name) ? window.name : null);
+let courant = params.get("robot") in ROBOTS ? params.get("robot") : "q3";
+const $ = id => document.getElementById(id);
+
+// Polygone à coins arrondis (convexes et concaves) → chemin SVG.
+function arrondir(pts, r){
+  const n = pts.length, K = 0.5523; let d = "";
+  for(let i = 0; i < n; i++){
+    const p = pts[i], a = pts[(i - 1 + n) % n], b = pts[(i + 1) % n];
+    const la = Math.hypot(a[0]-p[0], a[1]-p[1]), lb = Math.hypot(b[0]-p[0], b[1]-p[1]);
+    const rr = Math.min(r, la / 2, lb / 2);
+    const s = [p[0] + (a[0]-p[0]) / la * rr, p[1] + (a[1]-p[1]) / la * rr];
+    const e = [p[0] + (b[0]-p[0]) / lb * rr, p[1] + (b[1]-p[1]) / lb * rr];
+    const c1 = [s[0] + (p[0]-s[0]) * K, s[1] + (p[1]-s[1]) * K], c2 = [e[0] + (p[0]-e[0]) * K, e[1] + (p[1]-e[1]) * K];
+    d += (i ? "L" : "M") + s.map(v => v.toFixed(1)).join(" ") + "C" + [c1, c2, e].map(q => q.map(v => v.toFixed(1)).join(" ")).join(" ");
+  }
+  return d + "Z";
+}
+const visible = el => el && el.getClientRects().length > 0;
+
+// Trace le contour du panneau autour des boîtes qui le découpent.
+function decouper(){
+  const pan = $("panneau"), P = pan.getBoundingClientRect(), W = P.width, H = P.height;
+  if(!W || !H) return;
+  const pts = [[0, 0]];
+  const hd = [$("encoche"), $("pastille")].find(visible);
+  if(hd){ const R = hd.getBoundingClientRect(), x = R.left - P.left, y = R.bottom - P.top; pts.push([x, 0], [x, y], [W, y]); }
+  else pts.push([W, 0]);
+  pts.push([W, H]);
+  const bg = $("vignette");
+  if(visible(bg)){ const R = bg.getBoundingClientRect(), x = R.right - P.left, y = R.top - P.top; pts.push([x, H], [x, y], [0, y]); }
+  else pts.push([0, H]);
+  const dec = $("decoupe");
+  if(getComputedStyle(dec).position === "absolute"){
+    const R = dec.getBoundingClientRect(), cw = R.right - P.left, ct = R.top - P.top, cb = R.bottom - P.top;
+    if(cw > 0) pts.push([0, cb], [cw, cb], [cw, ct], [0, ct]);
+  }
+  pan.style.borderRadius = "0";
+  pan.style.clipPath = "path('" + arrondir(pts, W < 600 ? 22 : 26) + "')";
+}
+
+// Le mot « CLAIR » occupe toute la largeur, comme « ONDERA ».
+function ajusterMarque(){
+  const m = $("marque"); if(!visible(m)) return;
+  m.style.fontSize = "100px";
+  m.style.fontSize = (100 * m.parentElement.clientWidth / m.scrollWidth) + "px";
+}
+
+function appliquer(id, anime){
+  courant = id; const r = ROBOTS[id];
+  document.querySelectorAll("button[data-robot]").forEach(b => b.setAttribute("aria-pressed", b.dataset.robot === id));
+  if($("page").hidden) return;
+  const img = $("imgProduit"), trace = $("trace");
+  const poser = () => { img.src = r.img; img.alt = r.alt; img.classList.remove("sort"); };
+  if(anime){ img.classList.add("sort"); trace.classList.add("efface"); void trace.getBoundingClientRect(); requestAnimationFrame(() => trace.classList.remove("efface")); setTimeout(poser, 220); } else poser();
+  $("nom").textContent = r.nom; $("badge").textContent = r.badge;
+  ["e1","e2","e3"].forEach((k, i) => { const e = $(k), [t, [x, y]] = r.etiq[i]; e.textContent = t; e.style.left = x + "%"; e.style.top = y + "%"; });
+  document.querySelectorAll("[data-prix]").forEach(p => p.textContent = "· " + r.prix + " €");
+  document.querySelector("[data-prix-seul]").textContent = r.prix + " €";
+  $("barreNom").textContent = "Clair " + r.nom;
+  $("pastilleLien").setAttribute("aria-label", "Ajouter le " + r.nom + " au panier");
+  $("photoMobile").src = r.scene;
+  const n = ROBOTS[suivant(id)];
+  $("vignetteImg").src = n.img; $("vignetteLib").textContent = n.num + " · " + n.nom; $("vignetteBtn").setAttribute("aria-label", "Voir le " + n.nom);
+}
+const choisir = id => { appliquer(id, true); if(parent !== window) parent.postMessage({clair:id}, "*"); };
+
+if(vue === "bureau" || vue === "mobile"){
+  $("page").hidden = false;
+  appliquer(courant, false);
+  document.querySelectorAll(".selecteur button").forEach(b => b.addEventListener("click", () => choisir(b.dataset.robot)));
+  document.querySelectorAll(".tags a").forEach(a => a.addEventListener("click", e => {
+    e.preventDefault(); document.querySelectorAll(".tags a").forEach(t => t.classList.toggle("actif", t === a)); choisir(a.dataset.robot);
+  }));
+  $("vignetteBtn").addEventListener("click", () => choisir(suivant(courant)));
+  window.addEventListener("message", e => { if(e.data && e.data.clair in ROBOTS && e.data.clair !== courant) appliquer(e.data.clair, true); });
+
+  // Carrousel bureau : la première carte est coupée par le bord, comme sur le wireframe.
+  const piste = $("piste"), pas = () => piste.querySelector(".carte").offsetWidth + 14;
+  const caler = () => { if(getComputedStyle(piste).display === "flex"){ piste.style.scrollBehavior = "auto"; piste.scrollLeft = pas() * 0.42; piste.style.scrollBehavior = ""; } };
+  $("flecheG").addEventListener("click", () => piste.scrollBy({left: -pas()}));
+  $("flecheD").addEventListener("click", () => piste.scrollBy({left: pas()}));
+
+  const tout = () => { ajusterMarque(); decouper(); };
+  new ResizeObserver(tout).observe($("hero"));
+  addEventListener("resize", caler);
+  tout(); caler();
+  document.fonts && document.fonts.ready.then(tout);
+
+  const barre = $("barre");
+  if(params.get("barre") === "1") barre.classList.add("visible");
+  else if("IntersectionObserver" in window){
+    new IntersectionObserver(([en]) => { barre.classList.toggle("visible", !en.isIntersecting && en.boundingClientRect.top < 0); barre.setAttribute("aria-hidden", !barre.classList.contains("visible")); })
+      .observe($("achatMobile"));
+  }
+} else {
+  $("atelier").hidden = false;
+  const fB = $("fBureau"), fM = $("fMobile"), ecran = $("ecranBureau");
+  fB.name = "bureau"; fM.name = "mobile";
+  fB.src = "?vue=bureau"; fM.src = "?vue=mobile";
+  const ajuster = () => { const s = ecran.clientWidth / 1440; fB.style.transform = "scale(" + s + ")"; ecran.style.height = (880 * s) + "px"; };
+  addEventListener("resize", ajuster); ajuster();
+  const diffuser = id => { appliquer(id); [fB, fM].forEach(f => f.contentWindow && f.contentWindow.postMessage({clair:id}, "*")); };
+  document.querySelectorAll(".choix button").forEach(b => b.addEventListener("click", () => diffuser(b.dataset.robot)));
+  addEventListener("message", e => { if(e.data && e.data.clair in ROBOTS) diffuser(e.data.clair); });
+}
+</script>
+</body>
+</html>

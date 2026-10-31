@@ -1,0 +1,210 @@
+<title>Point marque Clair</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Deck façon brand book : écran sombre, planches claires 16:9 avec étiquette en haut à gauche (référence « 480$ brand »).
+   Un seul rendu, choisi : entourage sombre et planches claires, quel que soit le thème. */
+@font-face{font-family:"Cabinet Grotesk";src:url("assets/fonts/cabinet-grotesk-500.woff2") format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Cabinet Grotesk";src:url("assets/fonts/cabinet-grotesk-800.woff2") format("woff2");font-weight:800;font-display:swap}
+@font-face{font-family:"Clash Display";src:url("assets/fonts/clash-display-600.woff2") format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Panchang";src:url("assets/fonts/panchang-700.woff2") format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Satoshi";src:url("assets/fonts/satoshi-400.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Satoshi";src:url("assets/fonts/satoshi-500.woff2") format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Satoshi";src:url("assets/fonts/satoshi-700.woff2") format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"General Sans";src:url("assets/fonts/general-sans-400.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"General Sans";src:url("assets/fonts/general-sans-500.woff2") format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Switzer";src:url("assets/fonts/switzer-400.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Switzer";src:url("assets/fonts/switzer-500.woff2") format("woff2");font-weight:500;font-display:swap}
+:root{
+  --ecran:#0b1115; --planche:#f4f5f5; --blanc:#ffffff; --nuit:#06141B; --ardoise:#11212D; --vitre:#253745; --acier:#4A5C6A; --brume:#9BA8AB; --givre:#CCD0CF;
+  --titre:"Cabinet Grotesk",ui-sans-serif,system-ui,sans-serif; --texte:"Satoshi",ui-sans-serif,system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ecran);color:var(--nuit);font-family:var(--texte);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+h1,h2,h3,p,figure{margin:0}
+h1,h2,h3{text-wrap:balance}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--brume);outline-offset:3px}
+.deck{max-width:1280px;margin:0 auto;display:grid;gap:28px}
+.tete-deck{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;color:var(--brume);font-size:13px}
+.tete-deck b{color:var(--blanc);font-family:var(--titre);font-weight:800;font-size:18px}
+.planche{position:relative;background:var(--planche);border-radius:18px;aspect-ratio:16/9;padding:clamp(18px,3vw,40px);display:grid;gap:22px;align-content:start}
+.etiq{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--acier)}
+.etiq span:first-child{display:grid;line-height:1.25}
+.etiq span:first-child b{color:var(--nuit);font-weight:500}
+.num{font-variant-numeric:tabular-nums}
+h2{font-family:var(--titre);font-weight:800;font-size:clamp(30px,4.2vw,56px);line-height:.98;letter-spacing:-.02em}
+h3{font-family:var(--titre);font-weight:800;font-size:20px;line-height:1.1}
+.chapo{max-width:62ch;color:var(--acier);font-size:16px}
+.grille{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.carte{background:var(--blanc);border-radius:14px;padding:18px;display:grid;gap:10px;align-content:start;min-width:0}
+.carte p{color:var(--acier);font-size:14px}
+.media{border-radius:12px;overflow:hidden;background:var(--givre);max-width:100%}
+.media img,.media video{display:block;width:100%;height:100%;object-fit:cover}
+.tag{display:inline-flex;align-self:start;justify-self:start;padding:4px 10px;border-radius:999px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;background:var(--nuit);color:var(--blanc)}
+.tag.clair{background:var(--givre);color:var(--nuit)}
+ul{margin:0;padding-left:18px;display:grid;gap:4px;color:var(--acier);font-size:14px}
+
+/* couverture */
+.couv{background:var(--vitre);color:var(--blanc);align-content:space-between}
+.couv .etiq,.couv .etiq span:first-child b{color:var(--givre)}
+.couv h1{font-family:var(--titre);font-weight:800;font-size:clamp(84px,17vw,230px);line-height:.8;letter-spacing:-.04em}
+.couv .bas{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap}
+.couv .bas p{max-width:46ch;color:var(--givre)}
+
+/* spécimens typo */
+.spec{background:var(--blanc);border-radius:14px;padding:20px;display:grid;gap:12px;align-content:start;min-width:0;border:2px solid transparent}
+.spec.reco{border-color:var(--nuit)}
+.spec .noms{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--acier);flex-wrap:wrap}
+.spec .t{font-size:clamp(24px,2.6vw,34px);line-height:1.02;letter-spacing:-.015em;color:var(--nuit)}
+.spec .c{font-size:14px;color:var(--acier)}
+.spec .cta{display:inline-flex;align-items:center;gap:10px;justify-self:start;height:44px;padding:0 6px 0 18px;border-radius:999px;background:var(--nuit);color:var(--blanc);font-size:14px}
+.spec .cta i{font-style:normal;width:32px;height:32px;border-radius:50%;background:var(--blanc);color:var(--nuit);display:grid;place-items:center}
+.f-a .t,.f-a .cta{font-family:"Cabinet Grotesk";font-weight:800}.f-a .c{font-family:"Satoshi"}
+.f-b .t,.f-b .cta{font-family:"Clash Display";font-weight:600}.f-b .c{font-family:"General Sans"}
+.f-c .t{font-family:"Panchang";font-weight:700;font-size:clamp(18px,1.9vw,25px);line-height:1.12}.f-c .cta{font-family:"Switzer";font-weight:500}.f-c .c{font-family:"Switzer"}
+.f-d .c{font-family:"Satoshi"}
+
+/* formes de CTA */
+.ctas{display:flex;flex-wrap:wrap;gap:18px 24px;align-items:center}
+.cta-plein{display:inline-flex;align-items:center;gap:12px;height:54px;padding:0 8px 0 24px;border-radius:999px;background:var(--nuit);color:var(--blanc);font-family:var(--titre);font-weight:800;font-size:15px}
+.cta-plein i,.cta-rond{font-style:normal;width:40px;height:40px;border-radius:50%;background:var(--blanc);color:var(--nuit);display:grid;place-items:center}
+.cta-rond{width:54px;height:54px;background:var(--nuit);color:var(--blanc);font-size:18px}
+.cta-contour{display:inline-flex;align-items:center;height:50px;padding:0 22px;border-radius:999px;border:1.5px solid var(--nuit);font-weight:500}
+.cta-lien{text-decoration:underline;text-underline-offset:5px;font-weight:500}
+.cta-barre{display:flex;align-items:center;justify-content:space-between;gap:12px;width:min(360px,100%);padding:6px 6px 6px 18px;border-radius:999px;background:var(--blanc);box-shadow:0 8px 24px rgba(6,20,27,.12)}
+.cta-barre b{font-family:var(--titre);font-weight:800}
+.cta-barre span{display:block;font-size:12px;color:var(--acier)}
+.cta-barre a{height:44px;display:grid;place-items:center;padding:0 18px;border-radius:999px;background:var(--nuit);color:var(--blanc);text-decoration:none;font-size:14px}
+.cta-etiq{display:inline-flex;align-items:center;gap:8px;padding:8px 14px 8px 12px;border-radius:999px;background:var(--vitre);color:var(--blanc);font-size:13px}
+.cta-etiq::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--blanc)}
+
+/* décisions */
+.decision{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;background:var(--blanc);border-radius:14px;padding:16px 18px}
+.case{width:18px;height:18px;border:1.5px solid var(--brume);border-radius:5px;margin-top:3px}
+.decision p{color:var(--acier);font-size:14px}
+
+.sources{color:var(--brume);font-size:12px;display:grid;gap:4px}
+.sources a{color:var(--givre)}
+
+@media (max-width:1000px){
+  .planche{aspect-ratio:auto}
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:640px){
+  .g2,.g3,.g4{grid-template-columns:minmax(0,1fr)}
+  .couv{min-height:420px}
+}
+</style>
+
+<div class="deck">
+  <div class="tete-deck"><b>Clair</b><span>Point marque · images, vidéos, typo · 30 oct. 2026</span></div>
+
+  <!-- 01 -->
+  <section class="planche couv" aria-labelledby="s1">
+    <div class="etiq"><span><b>Point marque</b>Robots laveurs de vitres</span><span class="num">01 / 08</span></div>
+    <h1 id="s1">Clair</h1>
+    <div class="bas">
+      <p>Une marque forte, une boutique qui vend vite. Ce deck fait le point sur la typo, les images et les vidéos avant la production Google Flow.</p>
+      <span class="tag clair">Retenu : After (titres) · Satoshi (texte)</span>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="planche" aria-labelledby="s2">
+    <div class="etiq"><span><b>Le cap</b>Ce que chaque visuel doit servir</span><span class="num">02 / 08</span></div>
+    <h2 id="s2">Une identité qu'on reconnaît, un achat à portée de pouce.</h2>
+    <div class="grille g3">
+      <div class="carte"><span class="tag">Marque</span><h3>Forte et constante</h3><p>Même typo, même lumière, même cadrage sur le site, les pubs et les fiches. Le robot est toujours le héros de l'image.</p></div>
+      <div class="carte"><span class="tag">E-commerce</span><h3>L'achat visible partout</h3><p>Chaque écran porte un CTA, sous plusieurs formes : pilule, pastille ronde, barre collante, étiquette prix (planche 07).</p></div>
+      <div class="carte"><span class="tag">Réalisme</span><h3>Ultra réaliste, jamais mensonger</h3><p>Photos et vidéos générées dans Google Flow à partir des vraies photos du produit. Aucune fonction inventée, aucun résultat exagéré.</p></div>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="planche" aria-labelledby="s3">
+    <div class="etiq"><span><b>Typographie</b>La piste « After »</span><span class="num">03 / 08</span></div>
+    <div class="grille g2" style="align-items:start">
+      <figure class="media" style="aspect-ratio:4/5;max-height:520px"><img src="assets/images/ref-typo-after.jpg" alt="Affiche de la police After, lettres blanches sur un ciel en dégradé vert, rouge et orange"></figure>
+      <div class="grille" style="align-content:start">
+        <h2 id="s3">After n'est pas sur Fontshare.</h2>
+        <p class="chapo">Le catalogue Fontshare compte 100 familles et aucune ne s'appelle After. La seule trace trouvée est « After Display » de Webhance (Ancy George), un seul style, en vente sur MyFonts à partir de 30 $.</p>
+        <div class="carte"><h3>À vérifier avant de choisir</h3>
+          <ul><li>Que c'est bien la même police que l'affiche (le « A » coupé et le « t » courbé).</li><li>La licence web et pub : la licence d'un seul style ne couvre pas forcément le site.</li><li>Un seul style : il faut une deuxième police pour le texte.</li></ul>
+        </div>
+        <p class="chapo">On en retient l'esprit : capitales larges et pleines, détails taillés, et ce ciel granuleux en dégradé comme ambiance possible pour les pubs.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="planche" aria-labelledby="s4">
+    <div class="etiq"><span><b>Typographie</b>Quatre duos, testés sur le vrai titre</span><span class="num">04 / 08</span></div>
+    <h2 id="s4">Un duo titre + texte.</h2>
+    <div class="grille g4">
+      <div class="spec f-a"><div class="noms"><b>A</b><span>Fontshare</span></div><p class="t">Le robot laveur de vitres qui grimpe à votre place.</p><p class="c">Cabinet Grotesk Extrabold pour les titres, Satoshi pour le texte. Large, plein, premium, très lisible en petit.</p><span class="cta">Ajouter au panier <i>→</i></span></div>
+      <div class="spec f-b"><div class="noms"><b>B</b><span>Fontshare</span></div><p class="t">Le robot laveur de vitres qui grimpe à votre place.</p><p class="c">Clash Display Semibold et General Sans. Plus tech et plus serré ; titres taillés, moins chaleureux.</p><span class="cta">Ajouter au panier <i>→</i></span></div>
+      <div class="spec f-c"><div class="noms"><b>C</b><span>Fontshare</span></div><p class="t">Le robot laveur de vitres qui grimpe à votre place.</p><p class="c">Panchang Bold et Switzer. Très étendue, effet affiche ; à réserver aux mots courts.</p><span class="cta">Ajouter au panier <i>→</i></span></div>
+      <div class="spec reco f-d"><div class="noms"><b>D · retenu</b><span>MyFonts + Fontshare</span></div><figure class="media" style="aspect-ratio:16/7"><img src="assets/images/ref-typo-after.jpg" alt="Lettrage After" style="object-position:50% 52%"></figure><p class="c">After Display (payante, à confirmer) pour le logo et les grands titres, Satoshi pour tout le reste.</p></div>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section class="planche" aria-labelledby="s5">
+    <div class="etiq"><span><b>Images produit</b>Ce qu'on a, ce qu'on vise</span><span class="num">05 / 08</span></div>
+    <h2 id="s5">Photos produit ultra réalistes.</h2>
+    <div class="grille g4">
+      <figure class="carte"><div class="media" style="aspect-ratio:1"><img src="assets/images/ref-situation-maison.webp" alt="Robot carré sur une baie vitrée sous la pluie, maison moderne et jardin"></div><span class="tag">Cible</span><p>Mise en situation : maison moderne, lumière de jour, pluie sur la vitre. Le niveau visé pour Flow.</p></figure>
+      <figure class="carte"><div class="media" style="aspect-ratio:1"><img src="assets/images/o1-packshot.png" alt="Robot O1 ovale, blanc avec anneau chromé, sur fond blanc"></div><span class="tag clair">O1 · packshot</span><p>Fond blanc, trois quarts. Sert d'image de référence pour Flow.</p></figure>
+      <figure class="carte"><div class="media" style="aspect-ratio:1"><img src="assets/images/o1-dessous-patins.png" alt="Dessous du robot O1 avec ses deux patins microfibre"></div><span class="tag clair">O1 · détail</span><p>Les deux patins microfibre. Plan détail utile pour la fiche produit.</p></figure>
+      <figure class="carte"><div class="media" style="aspect-ratio:1"><img src="assets/images/o1-situation-ville.png" alt="Robot O1 sur une fenêtre d'appartement avec vue sur la ville"></div><span class="tag clair">O1 · situation</span><p>Fenêtre d'appartement, ville en fond. Bonne base, à refaire en plus grande définition.</p></figure>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section class="planche" aria-labelledby="s6">
+    <div class="etiq"><span><b>Vidéos</b>Quatre références, quatre usages</span><span class="num">06 / 08</span></div>
+    <h2 id="s6">Ce que chaque vidéo nous apprend.</h2>
+    <div class="grille g4" style="max-width:1000px">
+      <figure class="carte"><div class="media" style="aspect-ratio:9/16"><video src="assets/videos/ref-cinema-ia.mp4" poster="assets/videos/ref-cinema-ia.jpg" controls muted loop playsinline preload="none"></video></div><span class="tag">Cible Flow</span><p>Plans cinéma multi-angles : large, gros plan, contre-jour, ville. Le style des vidéos produit. 8 s, 720 × 1280.</p></figure>
+      <figure class="carte"><div class="media" style="aspect-ratio:9/16"><video src="assets/videos/ref-demo-maison.mp4" poster="assets/videos/ref-demo-maison.jpg" controls muted loop playsinline preload="none"></video></div><span class="tag clair">Preuve d'usage</span><p>Démo filmée à la maison : pose sur la vitre, cuisine, boîte. Rassure avant l'achat. 21 s.</p></figure>
+      <figure class="carte"><div class="media" style="aspect-ratio:9/16"><video src="assets/videos/ref-gratte-ciel.mp4" poster="assets/videos/ref-gratte-ciel.jpg" controls muted loop playsinline preload="none"></video></div><span class="tag clair">Situation réelle</span><p>Robot sur une tour au coucher du soleil. Belle lumière chaude, image moins nette. 15 s.</p></figure>
+      <figure class="carte"><div class="media" style="aspect-ratio:9/16"><video src="assets/videos/ref-presentation-marque.mp4" poster="assets/videos/ref-presentation-marque.jpg" controls muted loop playsinline preload="none"></video></div><span class="tag clair">Format du deck</span><p>« Marque à 480 $ » : zone de protection du logo, motifs, badge, mises en situation. Le modèle de ce deck. 13 s.</p></figure>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section class="planche" aria-labelledby="s7">
+    <div class="etiq"><span><b>CTA</b>Plusieurs formes, une seule action : acheter</span><span class="num">07 / 08</span></div>
+    <h2 id="s7">Le bouton plein sombre est réservé à l'achat.</h2>
+    <div class="grille g2">
+      <div class="carte"><h3>Formes d'achat</h3><div class="ctas"><span class="cta-plein">Ajouter au panier · 269 € <i>→</i></span><span class="cta-rond" aria-label="Ajouter au panier">↗</span><span class="cta-etiq">Q3 · 269 €</span></div><p>Pilule dans l'encoche du hero, pastille ronde sur les visuels, étiquette prix posée sur les photos et les vidéos.</p></div>
+      <div class="carte"><h3>Formes d'exploration</h3><div class="ctas"><span class="cta-contour">Trouver mon robot</span><span class="cta-lien">Voir les 3 robots</span></div><p>Contour ou lien souligné : elles mènent à une fiche, jamais au paiement.</p></div>
+      <div class="carte"><h3>Barre collante mobile</h3><div class="cta-barre"><div><b>Clair Q3</b><span>269 €</span></div><a href="#s7">Ajouter au panier</a></div><p>Apparaît dès que le bouton du hero sort de l'écran.</p></div>
+      <div class="carte"><h3>Dans les vidéos</h3><ul><li>Dernier plan : packshot, prix et pastille ronde.</li><li>Sur le site, chaque vidéo produit a son bouton d'achat dessous.</li><li>Pubs : export 4K vertical, 60 i/s (règle R-007).</li></ul></div>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section class="planche" aria-labelledby="s8">
+    <div class="etiq"><span><b>Production</b>Google Flow, puis décisions</span><span class="num">08 / 08</span></div>
+    <h2 id="s8">Ce qu'on produit, ce que tu tranches.</h2>
+    <div class="grille g2">
+      <div class="carte"><h3>Liste de plans par robot (Q3, S2, O1)</h3>
+        <ul><li>Packshot fond blanc : face, trois quarts, dessous (patins).</li><li>Situations : baie vitrée de maison, véranda, fenêtre d'appartement en ville, paroi de douche.</li><li>Gros plans : pulvérisation, patins sur la vitre, télécommande.</li><li>Vidéo multi-angles de 6 à 8 s : orbite lente autour du robot posé sur la vitre, puis passage avant/après sur la vitre.</li><li>Toujours partir de la vraie photo du robot en image de référence, pour garder la forme exacte.</li></ul>
+      </div>
+      <div class="grille" style="align-content:start">
+        <div class="decision"><span class="case" style="background:var(--nuit);border-color:var(--nuit)"></span><div><h3>Duo typo · retenu : D</h3><p>After Display pour le logo et les titres, Satoshi pour le texte. Reste à acheter After avec une licence web et pub.</p></div></div>
+        <div class="decision"><span class="case"></span><div><h3>Lumière de marque</h3><p>Jour clair et pluie (photo cible) ou lumière chaude de fin de journée (tour au coucher du soleil).</p></div></div>
+        <div class="decision"><span class="case"></span><div><h3>Ambiance pubs</h3><p>Garder le ciel granuleux en dégradé de l'affiche After comme fond de marque, oui ou non.</p></div></div>
+        <div class="decision"><span class="case"></span><div><h3>Premier robot à produire dans Flow</h3><p>Q3 (haut de gamme, le hero) ou O1 (déjà les meilleures photos).</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="sources">
+    <span>Sources : catalogue <a href="https://www.fontshare.com/">Fontshare</a> (100 familles, licence ITF gratuite) · <a href="https://www.myfonts.com/de/collections/after-display-font-webhance">After Display sur MyFonts</a> · vidéos et images envoyées le 30 oct.</span>
+  </div>
+</div>

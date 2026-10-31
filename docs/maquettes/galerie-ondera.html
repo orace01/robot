@@ -1,0 +1,108 @@
+<title>Inspirations Ondera</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Planche de référence : bandeau-titre condensé, puis une grille par post @bee_ui.ux ; clic = image en grand. */
+:root {
+  --bg: #ffffff; --panel: #f3f4f4; --line: #dde1e1; --ink: #06141B; --soft: #4A5C6A; --muted: #7d8a8d; --mark: #253745; --on-mark: #ffffff;
+  --sans: "Archivo", ui-sans-serif, system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #06141B; --panel: #11212D; --line: #253745; --ink: #eef1f1; --soft: #CCD0CF; --muted: #9BA8AB; --mark: #CCD0CF; --on-mark: #06141B; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #06141B; --panel: #11212D; --line: #253745; --ink: #eef1f1; --soft: #CCD0CF; --muted: #9BA8AB; --mark: #CCD0CF; --on-mark: #06141B; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 56px; }
+.wrap { max-width: 1240px; margin: 0 auto; display: grid; gap: 44px; }
+.eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+h1, h2 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+header { display: grid; gap: 14px; justify-items: start; }
+h1 { font-size: clamp(64px, 15vw, 196px); line-height: .82; font-weight: 800; font-stretch: 70%; letter-spacing: -.01em; }
+.chapo { max-width: 62ch; color: var(--soft); }
+.retenu { display: inline-flex; align-items: center; gap: 8px; padding: 4px 11px; border-radius: 999px; background: var(--mark); color: var(--on-mark); font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+section { display: grid; gap: 16px; }
+.tete { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 20px; border-top: 1px solid var(--line); padding-top: 14px; }
+h2 { font-size: 26px; font-weight: 700; font-stretch: 85%; }
+.tete a { color: var(--soft); font-size: 13px; text-underline-offset: 3px; }
+.grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+figure { margin: 0; display: grid; gap: 8px; align-content: start; min-width: 0; }
+figure button { padding: 0; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--panel); cursor: zoom-in; display: block; width: 100%; aspect-ratio: 1; max-width: 100%; }
+figure img { width: 100%; height: 100%; object-fit: cover; display: block; }
+figure.cle button { outline: 2px solid var(--mark); outline-offset: 3px; }
+figcaption { display: grid; gap: 2px; font-size: 13px; color: var(--soft); }
+figcaption b { font-family: var(--mono); font-weight: 500; font-size: 11px; color: var(--muted); letter-spacing: .06em; }
+:focus-visible { outline: 2px solid var(--mark); outline-offset: 3px; }
+dialog { border: 0; padding: 0; background: transparent; max-width: min(96vw, 1100px); max-height: 94vh; }
+dialog::backdrop { background: rgba(6, 20, 27, .82); }
+dialog img { display: block; max-width: 100%; max-height: 86vh; border-radius: 14px; margin: 0 auto; }
+dialog p { color: #eef1f1; text-align: center; padding-top: 10px; font-size: 14px; }
+dialog form { position: absolute; top: 8px; right: 8px; }
+dialog form button { width: 40px; height: 40px; border-radius: 50%; border: 0; background: #ffffff; color: #06141B; font-size: 18px; cursor: pointer; }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Inspirations wireframe · @bee_ui.ux · vibe-brain</span>
+    <h1>ONDERA</h1>
+    <p class="chapo">Les 20 visuels de la landing « Ondera » rangés dans ta banque : 3 posts, fil de fer et haute fidélité. Pour Clair, on garde son fond blanc et sa version mobile, encadrée ci-dessous. Clique sur une image pour l'agrandir.</p>
+    <span class="retenu">Base du mobile de Clair : A-133, A-135, A-137</span>
+  </header>
+
+  <section aria-labelledby="p004">
+    <div class="tete"><h2 id="p004">Post 1 · Duo bureau et mobile</h2><a href="https://www.instagram.com/p/DeJwxxfH4cg/">DeJwxxfH4cg · 10 diapositives</a></div>
+    <div class="grille">
+      <figure><button data-z><img src="wireframes/ondera/2026-10-26-bee-004-duo-s01.jpg" alt="Fil de fer bureau et mobile de la landing"></button><figcaption><b>A-130 · DUO</b>Fil de fer, bureau et mobile</figcaption></figure>
+      <figure><button data-z><img src="wireframes/ondera/2026-10-26-bee-004-duo-s02.jpg" alt="Landing Ondera haute fidélité, bureau et mobile"></button><figcaption><b>A-131 · DUO</b>Haute fidélité, bureau et mobile</figcaption></figure>
+      <figure><button data-z><img src="wireframes/ondera/2026-10-26-bee-004-mobile-s03.jpg" alt="Fil de fer mobile, haut de page"></button><figcaption><b>A-132 · MOBILE</b>Fil de fer, haut de page</figcaption></figure>
+      <figure class="cle"><button data-z><img src="wireframes/ondera/2026-10-26-bee-004-mobile-s04.jpg" alt="Mobile Ondera haute fidélité, haut de page"></button><figcaption><b>A-133 · MOBILE · RETENU</b>Haute fidélité, haut de page</figcaption></figure>
+      <figure><button data-z><img src="wireframes/ondera/2026-10-26-bee-004-mobile-s05.jpg" alt="Fil de fer mobile, milieu de page"></button><figcaption><b>A-134 · MOBILE</b>Fil de fer, milieu de page</figcaption></figure>
+      <figure class="cle"><button data-z><img src="wireframes/ondera/2026-10-26-bee-004-mobile-s06.jpg" alt="Mobile haute fidélité, milieu de page"></button><figcaption><b>A-135 · MOBILE · RETENU</b>Haute fidélité, milieu de page</figcaption></figure>
+      <figure><button data-z><img src="wireframes/ondera/2026-10-26-bee-004-mobile-s07.jpg" alt="Fil de fer mobile, FAQ et pied de page"></button><figcaption><b>A-136 · MOBILE</b>Fil de fer, FAQ et pied de page</figcaption></figure>
+      <figure class="cle"><button data-z><img src="wireframes/ondera/2026-10-26-bee-004-mobile-s08.jpg" alt="Mobile haute fidélité, FAQ et pied de page"></button><figcaption><b>A-137 · MOBILE · RETENU</b>Haute fidélité, FAQ et pied de page</figcaption></figure>
+      <figure><button data-z><img src="wireframes/ondera/2026-10-26-bee-004-duo-s09.jpg" alt="Haute fidélité bureau et mobile, fin de page"></button><figcaption><b>A-138 · DUO</b>Haute fidélité, fin de page</figcaption></figure>
+      <figure><button data-z><img src="wireframes/ondera/2026-10-26-bee-004-duo-s10.jpg" alt="Mockup ordinateur portable et téléphone"></button><figcaption><b>A-139 · DUO</b>Mockup portable et téléphone</figcaption></figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="p010">
+    <div class="tete"><h2 id="p010">Post 2 · Bureau, tranche par tranche</h2><a href="https://www.instagram.com/p/DdJjAd2nxpv/">DdJjAd2nxpv · 8 diapositives</a></div>
+    <div class="grille">
+      <figure><button data-z><img src="wireframes/ondera/2026-10-26-bee-010-desktop-s01.jpg" alt="Fil de fer bureau, partie haute"></button><figcaption><b>A-179 · BUREAU</b>Fil de fer, partie haute</figcaption></figure>
+      <figure><button data-z><img src="wireframes/ondera/2026-10-26-bee-010-desktop-s02.jpg" alt="Ondera bureau, partie haute"></button><figcaption><b>A-180 · BUREAU</b>Haute fidélité, partie haute</figcaption></figure>
+      <figure><button data-z><img src="wireframes/ondera/2026-10-26-bee-010-desktop-s03.jpg" alt="Fil de fer bureau, cartes et FAQ"></button><figcaption><b>A-181 · BUREAU</b>Fil de fer, cartes, bloc sombre, FAQ</figcaption></figure>
+      <figure><button data-z><img src="wireframes/ondera/2026-10-26-bee-010-desktop-s04.jpg" alt="Bureau, cartes et FAQ"></button><figcaption><b>A-182 · BUREAU</b>Haute fidélité, cartes, bloc sombre, FAQ</figcaption></figure>
+      <figure><button data-z><img src="wireframes/ondera/2026-10-26-bee-010-desktop-s05.jpg" alt="Fil de fer bureau, pied de page"></button><figcaption><b>A-183 · BUREAU</b>Fil de fer, FAQ et pied de page</figcaption></figure>
+      <figure><button data-z><img src="wireframes/ondera/2026-10-26-bee-010-desktop-s06.jpg" alt="Bureau, pied de page"></button><figcaption><b>A-184 · BUREAU</b>Haute fidélité, FAQ et pied de page</figcaption></figure>
+      <figure><button data-z><img src="wireframes/ondera/2026-10-26-bee-010-desktop-s07.jpg" alt="Superposition haute fidélité et fil de fer"></button><figcaption><b>A-185 · BUREAU</b>Haute fidélité sur fil de fer</figcaption></figure>
+      <figure><button data-z><img src="wireframes/ondera/2026-10-26-bee-010-desktop-s08.jpg" alt="Mockup écran incliné, hero Ondera"></button><figcaption><b>A-186 · BUREAU</b>Mockup écran incliné</figcaption></figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="autres">
+    <div class="tete"><h2 id="autres">Autres traces</h2><a href="https://www.instagram.com/p/Deg3VZ6H-fB/">Deg3VZ6H-fB · 7 landings</a></div>
+    <div class="grille">
+      <figure><button data-z><img src="wireframes/ondera/2026-10-26-bee-002-desktop-s06.jpg" alt="Landing Ondera haute fidélité, bureau"></button><figcaption><b>A-114 · BUREAU</b>Ondera parmi 7 landings</figcaption></figure>
+      <figure><button data-z><img src="wireframes/ondera/2026-10-26-bee-010-mobile-s01.svg" alt="Mobile reconstitué de la landing"></button><figcaption><b>A-1012 · MOBILE</b>Mobile reconstitué par Claude, pas un original</figcaption></figure>
+    </div>
+  </section>
+</div>
+
+<dialog id="zoom" aria-label="Image agrandie">
+  <form method="dialog"><button aria-label="Fermer">×</button></form>
+  <img id="zoomImg" alt="">
+  <p id="zoomTxt"></p>
+</dialog>
+
+<script>
+const dlg = document.getElementById("zoom"), zi = document.getElementById("zoomImg"), zt = document.getElementById("zoomTxt");
+document.querySelectorAll("[data-z]").forEach(b => b.addEventListener("click", () => {
+  const img = b.querySelector("img");
+  zi.src = img.src; zi.alt = img.alt; zt.textContent = b.parentElement.querySelector("figcaption").innerText.replace("\n", " · ");
+  dlg.showModal();
+}));
+dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+</script>
