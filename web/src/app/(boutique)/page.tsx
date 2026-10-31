@@ -9,12 +9,12 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <Container className="mt-3">
+      <Lineup />
+      <Container className="mt-8">
         <TrustBar />
       </Container>
       <Anatomy />
       <HowItWorks />
-      <Lineup />
       <Q3Spotlight />
       <UseCases />
       <Reviews />

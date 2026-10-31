@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BatteryCharging, BellRing, Link2, ScanLine } from "lucide-react";
 import { Reveal } from "@/components/motion/reveal";
 import { AnnotatedProduct } from "@/components/product/annotated-product";
-import { ProductCard } from "@/components/product/product-card";
+import { LineupCard, type LineupItem } from "@/components/home/lineup-card";
 import { Accordion } from "@/components/ui/accordion";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
@@ -11,7 +11,8 @@ import { Eyebrow, SectionHeading } from "@/components/ui/typography";
 import { getDeliveryMap } from "@/lib/cj/delivery";
 import { faqGroups } from "@/lib/content";
 import { formatPrice } from "@/lib/format";
-import { getProduct, products } from "@/lib/products";
+import { formatRange } from "@/lib/delivery";
+import { getProduct, type ProductSlug } from "@/lib/products";
 import { site } from "@/lib/site";
 
 /* ------------------------------------------------ Anatomie du S2 */
@@ -46,36 +47,71 @@ export function Anatomy() {
 
 /* ------------------------------------------------ La gamme */
 
+/** Même ordre que le hero : du plus complet au plus accessible. */
+const LINEUP: ProductSlug[] = ["q3", "s2", "o1"];
+
 export async function Lineup() {
   const deliveries = await getDeliveryMap();
+  const items: LineupItem[] = LINEUP.map((slug) => {
+    const product = getProduct(slug)!;
+    const delivery = deliveries[slug];
+    return {
+      slug,
+      name: `${site.name} ${product.model}`,
+      model: product.model,
+      badge: product.badge,
+      tagline: product.tagline,
+      specs: product.cardSpecs,
+      price: product.price,
+      inStock: delivery.inStock,
+      delivery: `Livré en ${formatRange(delivery.standard)}`,
+      shippedFrom: delivery.fromEurope ? delivery.shippedFrom : null,
+      cutout: product.hero,
+      scene: product.scene,
+    };
+  });
+
   return (
-    <section className="py-24 lg:py-32">
+    <section aria-labelledby="gamme-titre" className="bg-white py-20 lg:py-28">
       <Container>
-        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-          <SectionHeading
-            eyebrow="La gamme"
-            title={
-              <>
-                Trois robots.
-                <br />
-                Une seule promesse.
-              </>
-            }
-          />
-          <Link
-            href="/robots#comparer"
-            className="inline-flex items-center gap-2 font-medium text-accent-strong hover:underline hover:underline-offset-4"
-          >
-            Comparer les modèles <ArrowUpRight className="size-4" aria-hidden />
-          </Link>
+        <div className="grid gap-8 border-b border-line pb-10 md:grid-cols-[1fr_minmax(0,340px)] md:items-end lg:pb-12">
+          <div>
+            <Eyebrow>La gamme · {items.length} robots</Eyebrow>
+            <h2
+              id="gamme-titre"
+              className="condensed mt-5 text-[clamp(2.5rem,5.6vw,5.5rem)] leading-[0.92] font-extrabold tracking-[-0.03em]"
+            >
+              <span className="block">Trois robots.</span>
+              <span className="block text-faint sm:whitespace-nowrap">Une seule promesse.</span>
+            </h2>
+          </div>
+          <div>
+            <p className="text-ink-soft">
+              Des vitres nettes, sans escabeau ni traces. Choisissez selon vos surfaces : du plus complet au plus
+              simple.
+            </p>
+            <Link
+              href="/robots#comparer"
+              className="mt-4 inline-flex items-center gap-2 text-sm font-medium underline decoration-ink/25 underline-offset-4 transition hover:decoration-ink"
+            >
+              Comparer les trois modèles <ArrowUpRight className="size-4" aria-hidden />
+            </Link>
+          </div>
         </div>
-        <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {products.map((product, i) => (
-            <Reveal key={product.slug} delay={i * 0.08}>
-              <ProductCard product={product} delivery={deliveries[product.slug]} className="h-full" />
-            </Reveal>
+
+        {/* Mobile : cartes à faire glisser. Dès la tablette : trois colonnes séparées d'un filet. */}
+        <ul className="-mx-4 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-3 md:gap-0 md:overflow-visible md:px-0 md:pb-0 lg:mt-12">
+          {items.map((item, i) => (
+            <li
+              key={item.slug}
+              className="w-[80%] shrink-0 snap-start sm:w-[55%] md:w-auto md:border-l md:border-line md:px-6 md:first:border-l-0 md:first:pl-0 md:last:pr-0 lg:px-8"
+            >
+              <Reveal delay={i * 0.08} className="h-full">
+                <LineupCard item={item} index={i} />
+              </Reveal>
+            </li>
           ))}
-        </div>
+        </ul>
       </Container>
     </section>
   );
